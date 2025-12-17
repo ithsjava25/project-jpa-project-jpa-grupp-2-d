@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Table(name = "movies")
 public class Movie {
@@ -14,6 +15,14 @@ public class Movie {
 
     @Column(nullable = false)
     private String title;
+
+    private String genre;
+
+    @Column(length = 1000)
+    private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     private Integer releaseYear;
     private Double imdbRating;
@@ -32,6 +41,19 @@ public class Movie {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
+    public String getGenre() { return genre; }
+    public void setGenre(String genre) { this.genre = genre; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public Integer getReleaseYear() { return releaseYear; }
     public void setReleaseYear(Integer releaseYear) {
         this.releaseYear = releaseYear;
@@ -43,4 +65,9 @@ public class Movie {
     }
 
     public List<Role> getRoles() { return roles; }
+
+    public void addRole(Role role) {
+        roles.add(role);
+        role.setMovie(this);
+    }
 }
