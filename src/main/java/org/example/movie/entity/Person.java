@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Table(name = "persons")
 public class Person {
@@ -17,12 +18,14 @@ public class Person {
     private String name;
 
     private LocalDate birthDate;
+
+    @Column(name = "image_url")
     private String imageUrl;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
     private List<Role> roles = new ArrayList<>();
 
-    public Person() {}
+    protected Person() {}
 
     public Person(String name) {
         this.name = name;
@@ -44,4 +47,10 @@ public class Person {
     }
 
     public List<Role> getRoles() { return roles; }
+
+    public void addRole(Role role) {
+        roles.add(role);
+        role.setPerson(this);
+    }
 }
+
