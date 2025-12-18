@@ -35,7 +35,7 @@ public class Movie {
 
     protected Movie() {}
 
-    public Movie(String title) {
+    public Movie(String title, Integer tmdbId) {
         this.title = title;
     }
 
