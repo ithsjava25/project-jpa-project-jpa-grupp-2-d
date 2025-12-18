@@ -33,7 +33,7 @@ public class TmdbClient {
         this.baseUrl = dotenv.get("TMDB_BASE_URL");
 
         if (apiKey == null || baseUrl == null) {
-            throw new RuntimeException("TMDB config missing in .env");
+            throw new IllegalArgumentException("TMDB config missing in .env");
         }
 
         this.httpClient = httpClient;
