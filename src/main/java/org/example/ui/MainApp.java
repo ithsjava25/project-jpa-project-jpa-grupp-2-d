@@ -3,8 +3,11 @@ package org.example.ui;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.example.service.MovieServices;
 
 public class MainApp {
+
+    private final MovieServices movieServices = new MovieServices();
 
     public void start(Stage stage) {
         try {
@@ -12,9 +15,10 @@ public class MainApp {
                 if (fxmlUrl == null) {
                 throw new IllegalStateException("Cannot find FXML resource: /MainView.fxml");
                 }
-            FXMLLoader loader = new FXMLLoader(
-                fxmlUrl
-            );
+
+            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+
+            loader.setControllerFactory(type -> new MainController(movieServices));
 
             Scene scene = new Scene(loader.load());
 

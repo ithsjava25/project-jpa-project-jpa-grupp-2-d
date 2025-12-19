@@ -1,6 +1,7 @@
 package org.example.ui;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ListView;
 import org.example.service.MovieServices;
 import org.example.movie.entity.Movie;
@@ -15,8 +16,10 @@ public class MainController {
     private final MovieServices movieServices;
 
     public MainController(MovieServices movieServices) {
-        this.movieServices = movieServices;
+            this.movieServices = movieServices;
     }
+
+
 
     @FXML
     private void loadMovies() {
