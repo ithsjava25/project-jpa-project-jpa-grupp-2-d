@@ -12,9 +12,16 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Person save(Person person) {
-        JPAUtil.inTransaction(em -> em.persist(person));
+        JPAUtil.inTransaction(em -> {
+            if (person.getId() == null) {
+                em.persist(person);
+            } else {
+                em.merge(person);
+            }
+        });
         return person;
     }
+
 
     @Override
     public Optional<Person> findById(Long id) {
