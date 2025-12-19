@@ -22,7 +22,7 @@ public class MainController {
     private void loadMovies() {
         movieList.getItems().clear();
 
-      /*  List<Movie> movies = movieServices.getAllMovies();*/ //Placeholder - här lägger vi in metoder som byggs i MovieServices, skickas till repos och JPA
+      /*  List<Movie> movies = movieService.getAllMovies();*/ //Placeholder - här lägger vi in metoder som byggs i MovieService, skickas till repos och JPA
 
        /* for (Movie movie : movies) {
             movieList.getItems().add(movie.getTitle());
