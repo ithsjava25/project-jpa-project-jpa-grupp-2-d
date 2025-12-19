@@ -2,7 +2,7 @@ package org.example.ui;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import org.example.service.MovieServices;
+import org.example.service.MovieService;
 import org.example.movie.entity.Movie;
 
 import java.util.List;
@@ -12,10 +12,10 @@ public class MainController {
     @FXML
     private ListView<String> movieList;
 
-    private final MovieServices movieServices;
+    private final MovieService movieService;
 
-    public MainController(MovieServices movieServices) {
-        this.movieServices = movieServices;
+    public MainController(MovieService movieService) {
+        this.movieService = movieService;
     }
 
     @FXML
