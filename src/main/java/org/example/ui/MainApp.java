@@ -3,6 +3,7 @@ package org.example.ui;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.example.api.TmdbClient;
 import org.example.service.MovieServices;
 
 public class MainApp {
@@ -11,6 +12,8 @@ public class MainApp {
 
     public void start(Stage stage) {
         try {
+                TmdbClient tmdbClient = new TmdbClient();
+                MovieDataSource dataSource = new ApiMovieDataSource(tmdbClient);
                 var fxmlUrl = getClass().getResource("/MainView.fxml");
                 if (fxmlUrl == null) {
                 throw new IllegalStateException("Cannot find FXML resource: /MainView.fxml");
@@ -18,12 +21,21 @@ public class MainApp {
 
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
 
-            loader.setControllerFactory(type -> new MainController(movieServices));
+            loader.setControllerFactory(type -> {
+                if (type == MainController.class) {
+                    return new MainController(dataSource);
+                }
+                try {
+                    return type.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
 
             Scene scene = new Scene(loader.load());
 
-            stage.setTitle("Movie Database App");
             stage.setScene(scene);
+            stage.setTitle("Movie Database App");
             stage.show();
 
         } catch (Exception e) {
