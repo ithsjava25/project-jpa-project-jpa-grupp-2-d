@@ -4,11 +4,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.api.TmdbClient;
-import org.example.service.MovieServices;
+import org.example.repository.MovieRepository;
+import org.example.repository.PersonRepository;
+import org.example.repository.RoleRepository;
+import org.example.service.MovieService;
 
 public class MainApp {
-
-    private final MovieServices movieServices = new MovieServices();
 
     public void start(Stage stage) {
         try {
