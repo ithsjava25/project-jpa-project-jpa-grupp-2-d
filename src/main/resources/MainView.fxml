@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.example.ui.MainController" minHeight="600" minWidth="800">
+<BorderPane minHeight="800" minWidth="600" maxHeight="1080" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ui.MainController">
 
     <top>
-        <Label text="Movie Database"
-               style="-fx-font-size: 20px; -fx-padding: 10;" />
+        <Label style="-fx-font-size: 20px; -fx-padding: 10;" text="Movie Database" />
     </top>
 
     <center>
-        <VBox spacing="10" alignment="CENTER">
-            <Button text="Load Movies" onAction="#loadMovies"/>
-            <ListView fx:id="movieList"/>
+        <VBox alignment="CENTER" spacing="10">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                <content>
+                    <FlowPane fx:id="movieContainer" alignment="CENTER" hgap="15" prefWrapLength="1920" vgap="15">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                    </FlowPane>
+                </content>
+            </ScrollPane>
+
+           <!-- <ToolBar>
+                <Button text="Popular" onAction="#loadPopular"/>
+                <Button text="Top Rated" onAction="#loadTopRated"/>
+                <TextField fx:id="searchField" promptText="Search movies"/>
+                <Button text="Search" onAction="#search"/>
+            </ToolBar>-->
+
         </VBox>
     </center>
 

@@ -2,6 +2,7 @@ package org.example.api;
 
 import com.google.gson.Gson;
 import io.github.cdimascio.dotenv.Dotenv;
+import nonapi.io.github.classgraph.json.JSONUtils;
 import org.example.dto.CreditsDTO;
 import org.example.dto.MovieDetailsDTO;
 import org.example.dto.TopRatedResponseDTO;
@@ -49,6 +50,7 @@ public class TmdbClient {
         this.gson = gson;
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
+        System.out.println("TMDB BASE URL = " + baseUrl);
     }
 
     public TopRatedResponseDTO getTopRatedMovies() {
