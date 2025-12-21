@@ -22,7 +22,7 @@ public class MainController {
    /* @FXML
     private ListView<String> movieList;
 
-    private final MovieServices movieServices;
+    private final MovieService movieService;
 
     public MainController(MovieServices movieServices) {
             this.movieServices = movieServices;
