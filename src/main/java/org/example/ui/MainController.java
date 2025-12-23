@@ -11,7 +11,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.example.dto.MovieDTO;
-import org.example.service.MovieServices;
+import org.example.service.MovieService;
 import org.example.movie.entity.Movie;
 
 import java.util.List;
