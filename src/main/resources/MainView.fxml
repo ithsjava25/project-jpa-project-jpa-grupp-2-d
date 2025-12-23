@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane minHeight="800" minWidth="600" maxHeight="1080" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ui.MainController">
+
+    <top>
+        <Label style="-fx-font-size: 20px; -fx-padding: 10;" text="Movie Database" />
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="10">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                <content>
+                    <FlowPane fx:id="movieContainer" alignment="CENTER" hgap="15" prefWrapLength="1920" vgap="15">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                    </FlowPane>
+                </content>
+            </ScrollPane>
+
+           <!-- <ToolBar>
+                <Button text="Popular" onAction="#loadPopular"/>
+                <Button text="Top Rated" onAction="#loadTopRated"/>
+                <TextField fx:id="searchField" promptText="Search movies"/>
+                <Button text="Search" onAction="#search"/>
+            </ToolBar>-->
+
+        </VBox>
+    </center>
+
+</BorderPane>

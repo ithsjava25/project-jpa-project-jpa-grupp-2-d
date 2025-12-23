@@ -29,6 +29,15 @@ public class Movie {
 
     private Integer releaseYear;
     private Double imdbRating;
+    private Integer runtime;
+
+    public Integer getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(Integer runtime) {
+        this.runtime = runtime;
+    }
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
     private List<Role> roles = new ArrayList<>();
