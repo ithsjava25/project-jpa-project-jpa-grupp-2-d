@@ -17,11 +17,11 @@ Kommunikation med databasen ska ske med JPA och Hibernate, enligt code first-met
 - [ x ] Arbeta på feature-branches och använd pull requests för kodgranskning
 
 ### ✅ Vecka 2 – Funktionalitet och relationer
-- [ ] Dela upp funktioner mellan gruppmedlemmar
-- [ ] Implementera funktionalitet för huvudentiteter
-- [ ] Testa queries med EntityManager
-- [ ] Dokumentera större designbeslut i PR-beskrivningar
-- [ ] Säkerställ att alla merges sker via kodgranskning
+- [ x ] Dela upp funktioner mellan gruppmedlemmar
+- [ x ] Implementera funktionalitet för huvudentiteter
+- [ x ] Testa queries med EntityManager
+- [ x ] Dokumentera större designbeslut i PR-beskrivningar
+- [ x ] Säkerställ att alla merges sker via kodgranskning
 
 ### ✅ Vecka 3 – Finslipning och presentation
 - [ ] Lägg till validering, felhantering och loggning
