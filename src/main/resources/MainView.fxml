@@ -3,11 +3,13 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<BorderPane minHeight="800" minWidth="600" maxHeight="1080" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ui.MainController">
+<!--Old version-->
+<!--<BorderPane maxHeight="1080" minHeight="800" minWidth="600" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ui.MainController">
 
     <top>
-        <Label style="-fx-font-size: 20px; -fx-padding: 10;" text="Movie Database" />
+        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="171.0" style="-fx-font-size: 20px; -fx-font-family: 'Lato Heavy'; -fx-padding: 10;" text="Movie Database" textFill="#0b0b0b" BorderPane.alignment="CENTER"/>
     </top>
 
     <center>
@@ -22,14 +24,69 @@
                 </content>
             </ScrollPane>
 
-           <!-- <ToolBar>
+           &lt;!&ndash; <ToolBar>
                 <Button text="Popular" onAction="#loadPopular"/>
                 <Button text="Top Rated" onAction="#loadTopRated"/>
                 <TextField fx:id="searchField" promptText="Search movies"/>
                 <Button text="Search" onAction="#search"/>
-            </ToolBar>-->
+            </ToolBar>&ndash;&gt;
 
         </VBox>
+    </center>
+
+</BorderPane>-->
+
+<!--New version-->
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.ui.MainController"
+            prefWidth="1000" prefHeight="800">
+
+    <!-- Top -->
+    <top>
+        <VBox spacing="8" style="-fx-padding: 10;">
+            <Label text="Movie Database"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+
+            <ToolBar>
+                <Button text="Home" onAction="#loadHome"/>
+                <Button text="Top Rated" onAction="#loadTopRated"/>
+                <Button text="New Releases" onAction="#loadNewReleases"/>
+
+                <Separator orientation="VERTICAL"/>
+
+                <TextField fx:id="searchField"
+                           promptText="Search movies..."
+                           prefWidth="200"/>
+
+                <Button text="Search" onAction="#search"/>
+            </ToolBar>
+
+            <!-- Filter Bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Genre:"/>
+                <ComboBox fx:id="genreComboBox"
+                          promptText="All genres"
+                          onAction="#filterByGenre"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!--Movie Grid-->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    vbarPolicy="AS_NEEDED">
+            <content>
+                <FlowPane fx:id="movieContainer"
+                          hgap="15"
+                          vgap="15"
+                          prefWrapLength="900">
+                <padding>
+                    <Insets bottom="15" left="15" right="15" top="15" />
+                </padding>
+                </FlowPane>
+            </content>
+        </ScrollPane>
     </center>
 
 </BorderPane>

@@ -3,15 +3,14 @@ package org.example.api;
 import com.google.gson.Gson;
 import io.github.cdimascio.dotenv.Dotenv;
 import nonapi.io.github.classgraph.json.JSONUtils;
-import org.example.dto.CreditsDTO;
-import org.example.dto.MovieDetailsDTO;
-import org.example.dto.TopRatedResponseDTO;
+import org.example.dto.*;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
 
 public class TmdbClient {
 
@@ -79,6 +78,32 @@ public class TmdbClient {
         }
     }
 
+    public NowPlayingDTO getNowPlayingMovies() {
+        try {
+            String url = baseUrl + "/movie/now_playing?api_key=" + apiKey;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(10))
+                .GET()
+                .build();
+
+            HttpResponse<String> response =
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException(
+                    "TMDB API error: HTTP " + response.statusCode() + " - " + response.body()
+                );
+            }
+
+            return gson.fromJson(response.body(), NowPlayingDTO.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not get top rated movies from TMDB", e);
+        }
+    }
+
     public MovieDetailsDTO getMovieDetails(int movieId) {
         try {
             String url = baseUrl + "/movie/" + movieId + "?api_key=" + apiKey;
@@ -130,4 +155,28 @@ public class TmdbClient {
             throw new RuntimeException("Could not get movie credits from TMDB", e);
         }
     }
+
+    public List<GenreDTO> getGenres() {
+        try {
+            String url = baseUrl + "/genre/movie/list?api_key=" + apiKey;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
+
+            HttpResponse<String> response =
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to load genres");
+            }
+
+            return gson.fromJson(response.body(), GenreListDTO.class).genres();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not load genres", e);
+        }
+    }
+
 }

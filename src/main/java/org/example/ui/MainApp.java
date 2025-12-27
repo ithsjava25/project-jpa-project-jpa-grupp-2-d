@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.api.TmdbClient;
 
+
 public class MainApp {
 
     public void start(Stage stage) {

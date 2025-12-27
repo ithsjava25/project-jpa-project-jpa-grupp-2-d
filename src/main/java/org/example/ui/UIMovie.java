@@ -1,0 +1,48 @@
+package org.example.ui;
+
+import org.example.dto.GenreDTO;
+import org.example.dto.MovieDTO;
+import org.example.dto.MovieDetailsDTO;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+public class UIMovie {
+
+    private final int id;
+    private final String title;
+    private final String posterPath;
+    private final List<String> genres;
+    private final String overview;
+
+    public UIMovie(int id, String title, String posterPath, String overview, List<String> genres) {
+        this.id = id;
+        this.title = title;
+        this.posterPath = posterPath;
+        this.overview = overview;
+        this.genres = genres;
+    }
+
+    // ✅ THIS is what Movie::fromDto refers to
+    public static UIMovie fromDto(MovieDTO dto, Map<Integer, String> genreMap) {
+        List<String> genres = dto.genreId() == null ? List.of() : dto.genreId().stream()
+            .map(genreMap::get)
+            .filter(Objects::nonNull)
+            .toList();
+
+        return new UIMovie(
+            dto.id(),
+            dto.title(),
+            dto.posterPath(),
+            dto.overview(),
+            genres
+        );
+    }
+
+    // getters
+    public int getId() { return id; }
+    public String getTitle() { return title; }
+    public String getPosterPath() { return posterPath; }
+    public List<String> getGenre() { return genres; }
+    public String getOverview() { return overview; }
+}
