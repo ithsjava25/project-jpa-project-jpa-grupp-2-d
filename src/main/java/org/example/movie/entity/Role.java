@@ -55,9 +55,6 @@ public class Role {
     public Person getPerson() { return person; }
     public void setPerson(Person person) {
         this.person = person;
-        if (person != null && !person.getRoles().contains(this)) {
-            person.getRoles().add(this);
-        }
     }
 }
 
