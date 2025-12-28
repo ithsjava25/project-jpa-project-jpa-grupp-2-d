@@ -151,6 +151,16 @@ public class MainController {
         }
 
         Label title = new Label(movie.getTitle());
+        Label meta = new Label(
+            "⭐ " + String.format("%.1f", movie.getRating()) +
+                "  •  " + movie.getReleaseYear()
+        );
+
+        meta.setStyle("""
+            -fx-text-fill: #cccccc;
+            -fx-font-size: 11px;
+        """);
+
         title.setWrapText(true);
         title.setMaxHeight(40);
         title.setStyle("""
@@ -160,7 +170,7 @@ public class MainController {
         """);
 
         VBox.setVgrow(title, Priority.NEVER);
-        card.getChildren().addAll(poster, title);
+        card.getChildren().addAll(poster, title, meta);
         return card;
     }
 
