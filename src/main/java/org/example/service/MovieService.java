@@ -156,7 +156,7 @@ public class MovieService {
                 roleRepository.save(role);
             });
 
-        // Takes max 1 directos
+        // Takes max 1 directors
         credits.crew().stream()
             // Filter only crew members with the job title "Director"
             .filter(crew -> "Director".equalsIgnoreCase(crew.job()))

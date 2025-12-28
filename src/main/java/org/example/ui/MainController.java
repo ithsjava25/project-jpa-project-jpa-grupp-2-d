@@ -49,13 +49,11 @@ public class MainController {
 
     @FXML
     private void loadTopRated() {
-        // TEMP: tills rating finns i UIMovie
         loadFromDatabase();
     }
 
     @FXML
     private void loadNewReleases() {
-        // TEMP: tills releaseYear finns i UIMovie
         loadFromDatabase();
     }
 
