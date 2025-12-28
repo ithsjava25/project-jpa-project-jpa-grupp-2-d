@@ -51,7 +51,7 @@ public class MovieService {
     public List<Role> getCreditsForMovie(int tmdbId) {
         Movie movie = getMovieByTmdbId(tmdbId);
 
-        // kan kräva transaction beroende på hur ni kör JPA (LAZY)
+        // kan kräva transaction(LAZY)
         return movie.getRoles();
     }
 
