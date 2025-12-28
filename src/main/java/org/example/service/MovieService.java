@@ -7,6 +7,7 @@ import org.example.repository.MovieRepository;
 import org.example.repository.PersonRepository;
 import org.example.repository.RoleRepository;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class MovieService {
@@ -50,7 +51,7 @@ public class MovieService {
     public List<Role> getCreditsForMovie(int tmdbId) {
         Movie movie = getMovieByTmdbId(tmdbId);
 
-        // kan kräva transaction beroende på hur ni kör JPA (LAZY)
+        // kan kräva transaction(LAZY)
         return movie.getRoles();
     }
 
@@ -135,38 +136,43 @@ public class MovieService {
         // Fetch credits (cast and crew) from TMDB using the movie's tmdbId
         CreditsDTO credits = tmdbClient.getMovieCredits(movie.getTmdbId());
 
-        // === ACTORS ===
-        // Iterate over cast list and map each cast member to a Person and ACTOR Role
-        for (CastDTO cast : credits.cast()) {
-            // Find existing Person by name or create a new one if it does not exist
-            Person person = getOrCreatePerson(cast.name());
 
-            // Create a new Role linking the Movie and the Person as an ACTOR
-            Role role = new Role(RoleType.ACTOR, movie, person);
+        // Takes max 9 actors
+        credits.cast().stream()
+            // TMDB cast är redan sorterad, men vi säkrar på order
+            .sorted(Comparator.comparingInt(CastDTO::order))
+            .limit(9)
+            .forEach(cast -> {
+                // Find existing Person by name or create a new one if it does not exist
+                Person person = getOrCreatePerson(cast.name());
 
-            // Store the credit order (lower number = more prominent actor)
-            role.setCreditOrder(cast.order());
+                // Create a new Role linking the Movie and the Person as an ACTOR
+                Role role = new Role(RoleType.ACTOR, movie, person);
 
-            // Persist the Role entity (links Movie ↔ Person)
-            roleRepository.save(role);
-        }
+                // Store the credit order (lower number = more prominent actor)
+                role.setCreditOrder(cast.order());
 
-        // === DIRECTORS ===
-        // Iterate over crew list and map director entries to Person and DIRECTOR Role
-        for (CrewDTO crew : credits.crew()) {
+                // Persist the Role entity (links Movie ↔ Person)
+                roleRepository.save(role);
+            });
+
+        // Takes max 1 directors
+        credits.crew().stream()
             // Filter only crew members with the job title "Director"
-            if (!"Director".equalsIgnoreCase(crew.job())) continue;
+            .filter(crew -> "Director".equalsIgnoreCase(crew.job()))
+            .limit(1)
+            .forEach(crew -> {
+                // Find existing Person by name or create a new one if it does not exist
+                Person person = getOrCreatePerson(crew.name());
 
-            // Find existing Person by name or create a new one if it does not exist
-            Person person = getOrCreatePerson(crew.name());
+                // Create a new Role linking the Movie and the Person as a DIRECTOR
+                Role role = new Role(RoleType.DIRECTOR, movie, person);
 
-            // Create a new Role linking the Movie and the Person as a DIRECTOR
-            Role role = new Role(RoleType.DIRECTOR, movie, person);
-
-            // Persist the Role entity
-            roleRepository.save(role);
-        }
+                // Persist the Role entity
+                roleRepository.save(role);
+            });
     }
+
 
 
     private Person getOrCreatePerson(String name) {

@@ -1,11 +1,9 @@
 package org.example.ui;
 
-import org.example.dto.GenreDTO;
-import org.example.dto.MovieDTO;
-import org.example.dto.MovieDetailsDTO;
+import org.example.movie.entity.Movie;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+
 
 public class UIMovie {
 
@@ -14,30 +12,44 @@ public class UIMovie {
     private final String posterPath;
     private final List<String> genres;
     private final String overview;
+    private final double rating;
+    private final int releaseYear;
 
-    public UIMovie(int id, String title, String posterPath, String overview, List<String> genres) {
+    public UIMovie(int id, String title, String posterPath, String overview, List<String> genres, double rating, int releaseYear) {
         this.id = id;
         this.title = title;
         this.posterPath = posterPath;
         this.overview = overview;
         this.genres = genres;
+        this.rating = rating;
+        this.releaseYear = releaseYear;
     }
 
-    // ✅ THIS is what Movie::fromDto refers to
-    public static UIMovie fromDto(MovieDTO dto, Map<Integer, String> genreMap) {
-        List<String> genres = dto.genreId() == null ? List.of() : dto.genreId().stream()
-            .map(genreMap::get)
-            .filter(Objects::nonNull)
-            .toList();
+
+    public static UIMovie fromEntity(Movie movie) {
+        int releaseYear = movie.getReleaseYear() != null
+            ? movie.getReleaseYear()
+            : 0;
+
+        List<String> genres =
+            movie.getGenre() == null || movie.getGenre().isBlank()
+                ? List.of()
+                : Arrays.stream(movie.getGenre().split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
 
         return new UIMovie(
-            dto.id(),
-            dto.title(),
-            dto.posterPath(),
-            dto.overview(),
-            genres
+            movie.getTmdbId(),
+            movie.getTitle(),
+            movie.getImageUrl(),
+            movie.getDescription(),
+            genres,
+            movie.getImdbRating(),
+            releaseYear
         );
     }
+
 
     // getters
     public int getId() { return id; }
@@ -45,4 +57,6 @@ public class UIMovie {
     public String getPosterPath() { return posterPath; }
     public List<String> getGenre() { return genres; }
     public String getOverview() { return overview; }
+    public double getRating() { return rating; }
+    public int getReleaseYear() { return releaseYear; }
 }
