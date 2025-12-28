@@ -3,7 +3,6 @@ package org.example.ui;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -74,18 +73,7 @@ public class MainController {
         List<Movie> movies = movieService.getAllMovies();
 
         allMovies = movies.stream()
-            .map(m -> new UIMovie(
-                m.getTmdbId(),
-                m.getTitle(),
-                m.getImageUrl(),
-                m.getDescription() == null ? "" : m.getDescription(),
-                (m.getGenre() == null || m.getGenre().isBlank())
-                    ? List.of()
-                    : Arrays.stream(m.getGenre().split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isBlank())
-                    .toList()
-            ))
+            .map(UIMovie::fromEntity)
             .toList();
 
         setupGenresFromDb();
