@@ -14,13 +14,17 @@ public class UIMovie {
     private final String posterPath;
     private final List<String> genres;
     private final String overview;
+    private final double rating;
+    private final int releaseYear;
 
-    public UIMovie(int id, String title, String posterPath, String overview, List<String> genres) {
+    public UIMovie(int id, String title, String posterPath, String overview, List<String> genres, double rating, int releaseYear) {
         this.id = id;
         this.title = title;
         this.posterPath = posterPath;
         this.overview = overview;
         this.genres = genres;
+        this.rating = rating;
+        this.releaseYear = releaseYear;
     }
 
     // ✅ THIS is what Movie::fromDto refers to
@@ -30,12 +34,19 @@ public class UIMovie {
             .filter(Objects::nonNull)
             .toList();
 
+        int releaseYear = 0;
+        if (dto.releaseDate() != null && !dto.releaseDate().isBlank()) {
+            releaseYear = Integer.parseInt(dto.releaseDate().substring(0, 4));
+        }
+
         return new UIMovie(
             dto.id(),
             dto.title(),
             dto.posterPath(),
             dto.overview(),
-            genres
+            genres,
+            dto.voteAverage(),
+            releaseYear
         );
     }
 
@@ -45,4 +56,6 @@ public class UIMovie {
     public String getPosterPath() { return posterPath; }
     public List<String> getGenre() { return genres; }
     public String getOverview() { return overview; }
+    public double getRating() { return rating; }
+    public int getReleaseYear() { return releaseYear; }
 }
