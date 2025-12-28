@@ -1,7 +1,6 @@
 package org.example.ui;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -11,31 +10,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import org.example.api.TmdbClient;
-import org.example.dto.GenreDTO;
-import org.example.dto.MovieDTO;
-import org.example.service.MovieService;
 import org.example.movie.entity.Movie;
-
+import org.example.service.MovieService;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class MainController {
 
-   /* @FXML
-    private ListView<String> movieList;
-
     private final MovieService movieService;
 
-    public MainController(MovieServices movieServices) {
-            this.movieServices = movieServices;
-    }*/
-
-    private final MovieDataSource dataSource;
-
-    public MainController(MovieDataSource dataSource) {
-        this.dataSource = dataSource;
+    public MainController(MovieService movieService) {
+        this.movieService = movieService;
     }
 
     @FXML
@@ -47,27 +33,14 @@ public class MainController {
     @FXML
     private ComboBox<String> genreComboBox;
 
-    private final TmdbClient tmdbClient = new TmdbClient();
 
-    private Map<Integer, String> genreMap;
     private List<UIMovie> allMovies = new ArrayList<>();
     private List<UIMovie> displayedMovies = new ArrayList<>();
 
-    private void loadGenres() {
-        List<GenreDTO> genres = tmdbClient.getGenres(); // GenreResponseDTO
-        genreMap = genres.stream()
-            .collect(Collectors.toMap(
-                GenreDTO::id,
-                GenreDTO::name
-            ));
-
-        genreComboBox.getItems().setAll("All");
-        genreComboBox.getItems().addAll(genreMap.values());
-    }
 
     @FXML
     private void loadHome() {
-        loadTopRated(); // Home = top rated for now
+        applyFilters();
     }
 
     @FXML
@@ -77,12 +50,14 @@ public class MainController {
 
     @FXML
     private void loadTopRated() {
-        var response = tmdbClient.getTopRatedMovies();
-        allMovies = response.results().stream()
-            .map(dto -> UIMovie.fromDto(dto, genreMap))
-            .toList();
+        // TEMP: tills rating finns i UIMovie
+        loadFromDatabase();
+    }
 
-        applyFilters();
+    @FXML
+    private void loadNewReleases() {
+        // TEMP: tills releaseYear finns i UIMovie
+        loadFromDatabase();
     }
 
     @FXML
@@ -90,6 +65,42 @@ public class MainController {
         applyFilters();
     }
 
+    @FXML
+    public void initialize() {
+        loadFromDatabase();
+    }
+
+    private void loadFromDatabase() {
+        List<Movie> movies = movieService.getAllMovies();
+
+        allMovies = movies.stream()
+            .map(m -> new UIMovie(
+                m.getTmdbId(),
+                m.getTitle(),
+                m.getImageUrl(),
+                m.getDescription() == null ? "" : m.getDescription(),
+                (m.getGenre() == null || m.getGenre().isBlank())
+                    ? List.of()
+                    : Arrays.stream(m.getGenre().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isBlank())
+                    .toList()
+            ))
+            .toList();
+
+        setupGenresFromDb();
+        applyFilters();
+    }
+
+    private void setupGenresFromDb() {
+        Set<String> genres = allMovies.stream()
+            .flatMap(movie -> movie.getGenre().stream())
+            .collect(Collectors.toCollection(TreeSet::new));
+
+        genreComboBox.getItems().setAll("All");
+        genreComboBox.getItems().addAll(genres);
+        genreComboBox.getSelectionModel().select("All");
+    }
 
     private void applyFilters() {
         String query = searchField.getText().toLowerCase();
@@ -110,60 +121,12 @@ public class MainController {
         refreshGrid();
     }
 
-    @FXML
-    private void loadNewReleases() {
-        var response = tmdbClient.getNowPlayingMovies(); // teammate can add this
-        allMovies = response.results().stream()
-            .map(dto -> UIMovie.fromDto(dto, genreMap))
-            .toList();
-
-        applyFilters();
-    }
-
-    private void setupGenres() {
-        loadGenres();
-        genreComboBox.getItems().add("All");
-        genreComboBox.getSelectionModel().select("All");
-    }
-
-    private void updateGenres() {
-        Set<String> genres = allMovies.stream()
-            .flatMap(movie -> movie.getGenre().stream())
-            .collect(Collectors.toSet());
-
-        genreComboBox.getItems().setAll("All");
-        genreComboBox.getItems().addAll(genres);
-    }
-
-
     private void refreshGrid() {
         movieContainer.getChildren().clear();
 
         displayedMovies.forEach(movie ->
             movieContainer.getChildren().add(createMovieCard(movie))
         );
-    }
-
-
-    @FXML
-    public void initialize() {
-        setupGenres();
-        loadHome();
-
-        //Old Version
-        /*try {
-            dataSource.getTopRatedMovies().forEach(movie ->
-                movieContainer.getChildren().add(createMovieCard(movie))
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                javafx.scene.control.Alert.AlertType.ERROR,
-                "Failed to load the application UI: " + e.getMessage()
-            );
-            alert.showAndWait();
-            throw new RuntimeException("UI initialization failed", e);
-        }*/
     }
 
     private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -185,7 +148,6 @@ public class MainController {
             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);
          """);
 
-
         ImageView poster = new ImageView();
         poster.setFitWidth(CARD_WIDTH - 12);
         poster.setFitHeight(POSTER_HEIGHT);
@@ -200,39 +162,18 @@ public class MainController {
                 getClass().getResourceAsStream("/images/no-poster.jpg"))));
         }
 
-
         Label title = new Label(movie.getTitle());
         title.setWrapText(true);
-        title.setMaxHeight(40); // ≈ 2 lines
+        title.setMaxHeight(40);
         title.setStyle("""
             -fx-text-fill: white;
             -fx-font-size: 12px;
             -fx-font-weight: bold;
         """);
 
-        Label overview = new Label(movie.getOverview());
-        overview.setWrapText(true);
-        overview.setMaxWidth(150);
-
         VBox.setVgrow(title, Priority.NEVER);
-
         card.getChildren().addAll(poster, title);
         return card;
     }
 
-
-
-
-
-
-  /*  @FXML
-    private void loadMovies() {
-        movieList.getItems().clear();
-
-      *//*  List<Movie> movies = movieServices.getAllMovies();*//* //Placeholder - här lägger vi in metoder som byggs i MovieServices, skickas till repos och JPA
-
-       *//* for (Movie movie : movies) {
-            movieList.getItems().add(movie.getTitle());
-        }*//*
-    }*/
 }
