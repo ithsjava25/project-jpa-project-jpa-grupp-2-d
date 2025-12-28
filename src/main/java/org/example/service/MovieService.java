@@ -136,9 +136,8 @@ public class MovieService {
         // Fetch credits (cast and crew) from TMDB using the movie's tmdbId
         CreditsDTO credits = tmdbClient.getMovieCredits(movie.getTmdbId());
 
-        // =========================
-        // ACTORS (MAX 8)
-        // =========================
+
+        // Takes max 9 actors
         credits.cast().stream()
             // TMDB cast är redan sorterad, men vi säkrar på order
             .sorted(Comparator.comparingInt(CastDTO::order))
@@ -157,9 +156,7 @@ public class MovieService {
                 roleRepository.save(role);
             });
 
-        // =========================
-        // DIRECTORS (MAX 2)
-        // =========================
+        // Takes max 1 directos
         credits.crew().stream()
             // Filter only crew members with the job title "Director"
             .filter(crew -> "Director".equalsIgnoreCase(crew.job()))
