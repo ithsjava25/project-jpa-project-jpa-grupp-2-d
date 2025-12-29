@@ -1,6 +1,9 @@
 package org.example.ui;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -9,9 +12,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.example.movie.entity.Movie;
 import org.example.service.MovieService;
 
+
+
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,6 +72,13 @@ public class MainController {
     @FXML
     public void initialize() {
         loadFromDatabase();
+
+        searchField.textProperty().addListener((obs, oldValue, newValue) -> {
+            applyFilters();
+        });
+        setupGenresFromDb();
+        applyFilters();
+
     }
 
     private void loadFromDatabase() {
@@ -125,6 +139,15 @@ public class MainController {
         card.setPrefSize(CARD_WIDTH, CARD_HEIGHT);
         card.setMinSize(CARD_WIDTH, CARD_HEIGHT);
         card.setMaxSize(CARD_WIDTH, CARD_HEIGHT);
+        card.getStyleClass().add("movie-card");
+
+        card.setOnMouseClicked(e -> {
+            System.out.println("CLICKED movie: " + movie.getTitle());
+            openMovieDetails(movie);
+        });
+
+
+
 
         card.setStyle("""
             -fx-background-color: #1e1e1e;
@@ -170,6 +193,49 @@ public class MainController {
         VBox.setVgrow(title, Priority.NEVER);
         card.getChildren().addAll(poster, title, meta);
         return card;
+    }
+
+    private void openMovieDetails(UIMovie movie) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/MovieDetailsView.fxml")
+            );
+
+            loader.setControllerFactory(type -> {
+                if (type == MovieDetailsController.class) {
+                    return new MovieDetailsController(movieService);
+                }
+                try {
+                    return type.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            Parent root = loader.load();
+
+            MovieDetailsController controller = loader.getController();
+            controller.loadMovie(movie.getId());
+
+            Stage stage = (Stage) movieContainer.getScene().getWindow();
+
+            Scene scene = new Scene(root, 1300, 800);
+            stage.setWidth(1300);
+            stage.setHeight(800);
+
+            stage.setMinWidth(1300);
+            stage.setMinHeight(800);
+            stage.setResizable(false);
+
+            scene.getStylesheets().add(
+                getClass().getResource("/styles/app.css").toExternalForm()
+            );
+
+            stage.setScene(scene);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
