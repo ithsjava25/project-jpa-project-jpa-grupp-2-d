@@ -1,12 +1,14 @@
 package org.example.service;
 
+import jakarta.transaction.Transactional;
 import org.example.api.TmdbClient;
 import org.example.dto.*;
 import org.example.movie.entity.*;
 import org.example.repository.MovieRepository;
 import org.example.repository.PersonRepository;
 import org.example.repository.RoleRepository;
-
+import org.example.ui.MovieDetailsUI;
+import org.example.util.JPAUtil;
 import java.util.Comparator;
 import java.util.List;
 
@@ -57,21 +59,24 @@ public class MovieService {
 
     // imports ALL data from Tmdb
     private void importAllDataFromTmdb() {
-        // first import list of top-rated movies
-        TopRatedResponseDTO response = tmdbClient.getTopRatedMovies();
 
-        for (MovieDTO movieDTO : response.results()) {
+        int pagesToFetch = 5; // 5 * 20 = 100 filmer
 
-            // 1. Create/Get movie
-            Movie movie = createMovieIfNotExists(movieDTO);
+        for (int page = 1; page <= pagesToFetch; page++) {
 
-            // 2. update current movie and add movie details
-            importMovieDetails(movie);
+            TopRatedResponseDTO response =
+                tmdbClient.getTopRatedMovies(page);
 
-            // 3. import credits for the movie
-            importCredits(movie);
+            for (MovieDTO movieDTO : response.results()) {
+
+                Movie movie = createMovieIfNotExists(movieDTO);
+
+                importMovieDetails(movie);
+                importCredits(movie);
+            }
         }
     }
+
 
     private Movie createMovieIfNotExists(MovieDTO dto) {
         // try to find if movie already exist with tmdbId
@@ -174,7 +179,6 @@ public class MovieService {
     }
 
 
-
     private Person getOrCreatePerson(String name) {
         // Attempt to find an existing Person with the given name
 
@@ -183,4 +187,39 @@ public class MovieService {
             .findByName(name)
             .orElseGet(() -> personRepository.save(new Person(name)));
     }
+
+
+    public MovieDetailsUI getMovieDetails(int tmdbId) {
+        return JPAUtil.inTransactionResult(em -> {
+
+            Movie movie = movieRepository
+                .findByTmdbIdWithRoles(em, tmdbId)
+                .orElseThrow(() -> new IllegalArgumentException("Movie not found"));
+
+            List<String> directors = movie.getRoles().stream()
+                .filter(r -> r.getRoleType() == RoleType.DIRECTOR)
+                .map(r -> r.getPerson().getName())
+                .toList();
+
+            List<String> actors = movie.getRoles().stream()
+                .filter(r -> r.getRoleType() == RoleType.ACTOR)
+                .map(r -> r.getPerson().getName())
+                .limit(9)
+                .toList();
+
+            return new MovieDetailsUI(
+                movie.getTitle(),
+                movie.getDescription(),
+                movie.getImdbRating(),
+                movie.getReleaseYear(),
+                movie.getImageUrl(),
+                directors,
+                actors
+            );
+        });
+    }
+
+
+
+
 }
