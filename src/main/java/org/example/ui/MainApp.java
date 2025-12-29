@@ -44,9 +44,11 @@ public class MainApp {
             });
 
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().add(
-                getClass().getResource("/styles/app.css").toExternalForm()
-            );
+            var css = getClass().getResource("/styles/app.css");
+            if (css != null) {
+                scene.getStylesheets().add(css.toExternalForm());
+            }
+
             stage.setScene(scene);
             stage.setWidth(1300);
             stage.setHeight(800);

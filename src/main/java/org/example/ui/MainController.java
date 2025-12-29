@@ -142,12 +142,8 @@ public class MainController {
         card.getStyleClass().add("movie-card");
 
         card.setOnMouseClicked(e -> {
-            System.out.println("CLICKED movie: " + movie.getTitle());
             openMovieDetails(movie);
         });
-
-
-
 
         card.setStyle("""
             -fx-background-color: #1e1e1e;
@@ -227,14 +223,15 @@ public class MainController {
             stage.setMinHeight(800);
             stage.setResizable(false);
 
-            scene.getStylesheets().add(
-                getClass().getResource("/styles/app.css").toExternalForm()
-            );
+            var css = getClass().getResource("/styles/app.css");
+            if (css != null) {
+                scene.getStylesheets().add(css.toExternalForm());
+            }
 
             stage.setScene(scene);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to open movie details view", e);
         }
     }
 
