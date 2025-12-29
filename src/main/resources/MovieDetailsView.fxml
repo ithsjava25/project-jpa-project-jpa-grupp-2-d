@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<?import javafx.scene.image.ImageView?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.ui.MovieDetailsController"
+            prefWidth="950" prefHeight="700"
+            style="-fx-background-color: #141414;">
+
+    <top>
+        <HBox spacing="10"
+              style="-fx-padding: 10; -fx-background-color: #141414;">
+            <Button text="← Back"
+                    onAction="#goBack"
+                    style="
+                    -fx-background-color: #e50914;
+                    -fx-text-fill: white;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 4;
+                    -fx-padding: 6 14;
+                "/>
+        </HBox>
+    </top>
+
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 20; -fx-background-color: #141414;">
+
+            <!-- Poster + main info -->
+            <HBox spacing="30">
+
+                <!-- Poster -->
+                <ImageView fx:id="posterImage"
+                           fitWidth="300"
+                           preserveRatio="true"/>
+
+                <!-- Text info -->
+                <VBox spacing="10">
+
+                    <Label fx:id="titleLabel"
+                           style="
+                           -fx-font-size: 26px;
+                           -fx-font-weight: bold;
+                           -fx-text-fill: white;"/>
+
+                    <Label fx:id="metaLabel"
+                           style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+
+                    <Label fx:id="ratingLabel"
+                           style="
+                           -fx-font-size: 16px;
+                           -fx-text-fill: #cccccc;"/>
+
+                    <!-- Overview -->
+                    <ScrollPane fitToWidth="true"
+                                prefHeight="250"
+                                style="
+                                -fx-background: transparent;
+                                -fx-background-color: transparent;">
+
+                        <content>
+                            <Label fx:id="overviewLabel"
+                                   wrapText="true"
+                                   focusTraversable="false"
+                                   style="
+                                   -fx-font-size: 14px;
+                                   -fx-text-fill: #dddddd;
+                                   -fx-background-color: transparent;"/>
+                        </content>
+
+                    </ScrollPane>
+
+
+                </VBox>
+            </HBox>
+
+            <!-- Credits -->
+            <VBox spacing="6">
+                <Label text="Director"
+                       style="
+                       -fx-font-size: 16px;
+                       -fx-font-weight: bold;
+                       -fx-text-fill: white;"/>
+                <Label fx:id="directorLabel"
+                       style="-fx-text-fill: #cccccc;"/>
+
+                <Label text="Actors"
+                       style="
+                       -fx-font-size: 16px;
+                       -fx-font-weight: bold;
+                       -fx-text-fill: white;"/>
+                <Label fx:id="actorsLabel"
+                       wrapText="true"
+                       style="-fx-text-fill: #cccccc;"/>
+            </VBox>
+
+        </VBox>
+    </center>
+</BorderPane>
+
+

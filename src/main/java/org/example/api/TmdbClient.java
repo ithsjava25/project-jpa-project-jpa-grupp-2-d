@@ -179,4 +179,34 @@ public class TmdbClient {
         }
     }
 
+    public TopRatedResponseDTO getTopRatedMovies(int page) {
+        try {
+            String url = baseUrl
+                + "/movie/top_rated"
+                + "?api_key=" + apiKey
+                + "&page=" + page;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(10))
+                .GET()
+                .build();
+
+            HttpResponse<String> response =
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException(
+                    "TMDB API error: HTTP " + response.statusCode()
+                );
+            }
+
+            return gson.fromJson(response.body(), TopRatedResponseDTO.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not get top rated movies", e);
+        }
+    }
+
+
 }

@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import jakarta.persistence.EntityManager;
 import org.example.movie.entity.Movie;
 
 import java.util.List;
@@ -20,5 +21,8 @@ public interface MovieRepository {
         List<Movie> findByTitleContaining(String title);
 
         long count();
+
+        Optional<Movie> findByTmdbIdWithRoles(EntityManager em, int tmdbId);
+
 }
 

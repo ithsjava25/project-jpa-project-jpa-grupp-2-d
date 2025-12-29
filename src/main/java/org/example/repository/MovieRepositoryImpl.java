@@ -105,4 +105,18 @@ public class MovieRepositoryImpl implements MovieRepository {
             em.close();
         }
     }
+
+    public Optional<Movie> findByTmdbIdWithRoles(EntityManager em, int tmdbId) {
+        return em.createQuery("""
+        SELECT m
+        FROM Movie m
+        LEFT JOIN FETCH m.roles r
+        LEFT JOIN FETCH r.person
+        WHERE m.tmdbId = :tmdbId
+        """, Movie.class)
+            .setParameter("tmdbId", tmdbId)
+            .getResultStream()
+            .findFirst();
+    }
+
 }

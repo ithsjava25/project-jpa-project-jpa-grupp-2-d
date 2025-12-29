@@ -44,9 +44,22 @@ public class MainApp {
             });
 
             Scene scene = new Scene(loader.load());
+            var css = getClass().getResource("/styles/app.css");
+            if (css != null) {
+                scene.getStylesheets().add(css.toExternalForm());
+            }
+
             stage.setScene(scene);
+            stage.setWidth(1300);
+            stage.setHeight(800);
+
+            stage.setMinWidth(1300);
+            stage.setMinHeight(800);
+
             stage.setTitle("Movie Database App");
             stage.show();
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
