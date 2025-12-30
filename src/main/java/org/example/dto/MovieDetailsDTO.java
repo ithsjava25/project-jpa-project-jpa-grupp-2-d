@@ -12,6 +12,12 @@ public record MovieDetailsDTO(
     int runtime,
     @SerializedName("vote_average") double voteAverage, // voteAverage = imdbRating in entity
     @SerializedName("poster_path") String posterPath,
+    List<GenreDTO> genres,
+    @SerializedName("spoken_languages") List<SpokenLanguageDTO> spokenLanguages,
+    String tagline,
+    String homepage,
+    @SerializedName("vote_count") Integer voteCount,
+    String status
 
-    List<GenreDTO> genres
+
 ) {}
