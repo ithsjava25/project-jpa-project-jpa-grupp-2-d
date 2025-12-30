@@ -11,33 +11,46 @@
             style="-fx-background-color: #141414;">
 
     <top>
-        <HBox spacing="10"
-              style="-fx-padding: 10; -fx-background-color: #141414;">
-            <Button text="← Back"
-                    onAction="#goBack"
-                    style="
-                    -fx-background-color: #e50914;
-                    -fx-text-fill: white;
-                    -fx-font-weight: bold;
-                    -fx-background-radius: 4;
-                    -fx-padding: 6 14;
-                "/>
-        </HBox>
+        <VBox spacing="8" style="-fx-padding: 10; -fx-background-color: #141414;">
+
+            <ToolBar style="-fx-background-color: #141414;">
+                <Button text="Back"
+                        prefHeight="32"
+                        onAction="#goBack"
+                        styleClass="nav-button-home"/>
+            </ToolBar>
+
+        </VBox>
+
     </top>
 
 
     <center>
         <VBox spacing="20" style="-fx-padding: 20; -fx-background-color: #141414;">
 
-            <!-- Poster + main info -->
-            <HBox spacing="30">
 
-                <!-- Poster -->
-                <ImageView fx:id="posterImage"
-                           fitWidth="300"
-                           preserveRatio="true"/>
+            <HBox spacing="30" VBox.vgrow="ALWAYS">
 
-                <!-- Text info -->
+                <VBox spacing="12" alignment="TOP_LEFT">
+
+
+                    <VBox styleClass="poster-frame">
+                        <ImageView fx:id="posterImage"
+                                   fitWidth="300"
+                                   preserveRatio="true"/>
+                    </VBox>
+
+
+                    <Hyperlink fx:id="homepageLink"
+                               text="Movie Page"
+                               focusTraversable="false"
+                               styleClass="external-link-button"
+                               visible="false"/>
+                </VBox>
+
+
+
+
                 <VBox spacing="10">
 
                     <Label fx:id="titleLabel"
@@ -46,57 +59,117 @@
                            -fx-font-weight: bold;
                            -fx-text-fill: white;"/>
 
-                    <Label fx:id="metaLabel"
-                           style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
-
-                    <Label fx:id="ratingLabel"
+                    <Label fx:id="taglineLabel"
+                           wrapText="true"
                            style="
-                           -fx-font-size: 16px;
-                           -fx-text-fill: #cccccc;"/>
+                           -fx-font-size: 14px;
+                           -fx-font-style: italic;
+                           -fx-text-fill: #bbbbbb;"/>
 
-                    <!-- Overview -->
+                    <Label fx:id="statusLabel"
+                           style="
+                           -fx-font-size: 12px;
+                           -fx-text-fill: #aaaaaa;"/>
+
+
+                    <VBox spacing="6">
+
+                        <HBox spacing="6">
+                            <Label text="Runtime:"
+                                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                            <Label fx:id="runtimeLabel"
+                                   style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+                        </HBox>
+
+                        <HBox spacing="6">
+                            <Label text="Release Date:"
+                                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                            <Label fx:id="releaseDateLabel"
+                                   style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+                        </HBox>
+
+                        <HBox spacing="6">
+                            <Label text="Genre:"
+                                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                            <Label fx:id="genreLabel"
+                                   wrapText="true"
+                                   style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+                        </HBox>
+
+
+                        <HBox alignment="CENTER_LEFT" spacing="5">
+                            <HBox spacing="6"
+                                  alignment="CENTER_LEFT"
+                                  styleClass="rating-badge">
+                                <Label text="★" styleClass="rating-star"/>
+                                <Label fx:id="ratingLabel" styleClass="rating-text"/>
+                            </HBox>
+                            <HBox spacing="6"
+                                  alignment="CENTER"
+                                  style="
+                                  -fx-background-color: rgba(255,255,255,0.08);
+                                  -fx-background-radius: 14;
+                                  -fx-padding: 4 10;">
+
+                                <Label fx:id="voteCountLabel"
+                                       style="-fx-text-fill: #dddddd; -fx-font-size: 12px;"/>
+                            </HBox>
+                        </HBox>
+                    </VBox>
+
+
                     <ScrollPane fitToWidth="true"
-                                prefHeight="250"
+                                VBox.vgrow="ALWAYS"
                                 style="
                                 -fx-background: transparent;
                                 -fx-background-color: transparent;">
 
                         <content>
-                            <Label fx:id="overviewLabel"
-                                   wrapText="true"
-                                   focusTraversable="false"
-                                   style="
-                                   -fx-font-size: 14px;
-                                   -fx-text-fill: #dddddd;
-                                   -fx-background-color: transparent;"/>
+                            <VBox spacing="14">
+
+                                <!-- Overview -->
+                                <Label fx:id="overviewLabel"
+                                       wrapText="true"
+                                       focusTraversable="false"
+                                       style="
+                                       -fx-font-size: 14px;
+                                       -fx-text-fill: #dddddd;
+                                       -fx-background-color: transparent;"/>
+
+                                <!-- Credits -->
+                                <VBox spacing="10">
+
+                                    <VBox spacing="2" VBox.vgrow="ALWAYS">
+                                        <Label text="Director"
+                                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                                        <Label fx:id="directorLabel"
+                                               style="-fx-text-fill: #cccccc;"/>
+                                    </VBox>
+
+                                    <VBox spacing="2">
+                                        <Label text="Actors"
+                                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                                        <Label fx:id="actorsLabel"
+                                               wrapText="true"
+                                               style="-fx-text-fill: #cccccc;"/>
+                                    </VBox>
+
+                                    <VBox spacing="2">
+                                        <Label text="Languages"
+                                               style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+                                        <Label fx:id="languagesLabel"
+                                               style="-fx-text-fill: #cccccc;"/>
+                                    </VBox>
+
+
+                                </VBox>
+
+                            </VBox>
                         </content>
 
                     </ScrollPane>
-
-
                 </VBox>
             </HBox>
-
-            <!-- Credits -->
-            <VBox spacing="6">
-                <Label text="Director"
-                       style="
-                       -fx-font-size: 16px;
-                       -fx-font-weight: bold;
-                       -fx-text-fill: white;"/>
-                <Label fx:id="directorLabel"
-                       style="-fx-text-fill: #cccccc;"/>
-
-                <Label text="Actors"
-                       style="
-                       -fx-font-size: 16px;
-                       -fx-font-weight: bold;
-                       -fx-text-fill: white;"/>
-                <Label fx:id="actorsLabel"
-                       wrapText="true"
-                       style="-fx-text-fill: #cccccc;"/>
-            </VBox>
-
         </VBox>
     </center>
 </BorderPane>
