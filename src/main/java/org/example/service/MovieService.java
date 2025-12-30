@@ -1,6 +1,5 @@
 package org.example.service;
 
-import jakarta.transaction.Transactional;
 import org.example.api.TmdbClient;
 import org.example.dto.*;
 import org.example.movie.entity.*;
