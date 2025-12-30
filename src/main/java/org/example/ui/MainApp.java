@@ -2,6 +2,7 @@ package org.example.ui;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.example.api.TmdbClient;
 import org.example.repository.MovieRepository;
@@ -56,7 +57,13 @@ public class MainApp {
             stage.setMinWidth(1300);
             stage.setMinHeight(800);
 
-            stage.setTitle("Movie Database App");
+            stage.setTitle("Movie Database App - By Adam, Mats, Tatjana :)");
+
+            stage.getIcons().add(
+                new Image(
+                    getClass().getResourceAsStream("/icons/app-icon.png")
+                )
+            );
             stage.show();
 
 
