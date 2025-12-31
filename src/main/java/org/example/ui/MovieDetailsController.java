@@ -9,9 +9,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.example.service.MovieService;
 import javafx.scene.control.Label;
-import java.awt.*;
 import java.io.IOException;
-import java.net.URI;
 
 
 
@@ -19,7 +17,6 @@ public class MovieDetailsController {
     private final MovieService movieService;
     private MovieDetailsUI movie;
     private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-
 
     @FXML
     private Label titleLabel;
@@ -71,7 +68,6 @@ public class MovieDetailsController {
         populateView();
     }
 
-
     private void populateView() {
 
         titleLabel.setText(
@@ -111,21 +107,17 @@ public class MovieDetailsController {
         if (movie.getHomepage() != null && !movie.getHomepage().isBlank()) {
             homepageLink.setVisible(true);
             homepageLink.setText("🔗 Movie Page");
-            homepageLink.setOnAction(e -> {
-                try {
-                    Desktop.getDesktop().browse(new URI(movie.getHomepage()));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            });
+            homepageLink.setOnAction(e ->
+                org.example.App.HOST_SERVICES.showDocument(movie.getHomepage())
+            );
+
+
         } else {
             homepageLink.setVisible(false);
         }
 
-
         // Runtime
         runtimeLabel.setText(formatRuntime(movie.getRuntime()));
-
 
         if (movie.getReleaseDate() != null) {
             releaseDateLabel.setText(
