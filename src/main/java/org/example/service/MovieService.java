@@ -1,6 +1,5 @@
 package org.example.service;
 
-import jakarta.transaction.Transactional;
 import org.example.api.TmdbClient;
 import org.example.dto.*;
 import org.example.movie.entity.*;
@@ -9,6 +8,8 @@ import org.example.repository.PersonRepository;
 import org.example.repository.RoleRepository;
 import org.example.ui.MovieDetailsUI;
 import org.example.util.JPAUtil;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -116,10 +117,37 @@ public class MovieService {
         movie.setImdbRating(details.voteAverage());
         movie.setRuntime(details.runtime());
         movie.setImageUrl(details.posterPath());
+        movie.setTagline(details.tagline());
+        movie.setHomepage(details.homepage());
+        movie.setVoteCount(details.voteCount());
+        movie.setStatus(details.status());
+
+
+        if (details.spokenLanguages() != null && !details.spokenLanguages().isEmpty()) {
+            String languages = details.spokenLanguages().stream()
+                .map(SpokenLanguageDTO::englishName) // eller ::name om ni vill
+                .reduce((a, b) -> a + ", " + b)
+                .orElse(null);
+
+            movie.setSpokenLanguages(languages);
+        }
 
         if (details.releaseDate() != null && !details.releaseDate().isBlank()) {
-            movie.setReleaseYear(Integer.parseInt(details.releaseDate().substring(0, 4)));
+            try {
+                LocalDate releaseDate = LocalDate.parse(details.releaseDate());
+
+                movie.setReleaseDate(releaseDate);
+                movie.setReleaseYear(releaseDate.getYear());
+
+            } catch (DateTimeParseException e) {
+                System.err.println(
+                    "Invalid release date from TMDB for movie " + movie.getTmdbId()
+                        + ": " + details.releaseDate()
+                );
+            }
         }
+
+
 
         // TMDB returns genres as objects with id and name
         // We store them as a comma-separated string ("Drama, Crime")
@@ -142,11 +170,11 @@ public class MovieService {
         CreditsDTO credits = tmdbClient.getMovieCredits(movie.getTmdbId());
 
 
-        // Takes max 9 actors
+        // Takes max 15 actors
         credits.cast().stream()
             // TMDB cast är redan sorterad, men vi säkrar på order
             .sorted(Comparator.comparingInt(CastDTO::order))
-            .limit(9)
+            .limit(15)
             .forEach(cast -> {
                 // Find existing Person by name or create a new one if it does not exist
                 Person person = getOrCreatePerson(cast.name());
@@ -161,11 +189,11 @@ public class MovieService {
                 roleRepository.save(role);
             });
 
-        // Takes max 1 directors
+        // Takes max 5 directors
         credits.crew().stream()
             // Filter only crew members with the job title "Director"
             .filter(crew -> "Director".equalsIgnoreCase(crew.job()))
-            .limit(1)
+            .limit(5)
             .forEach(crew -> {
                 // Find existing Person by name or create a new one if it does not exist
                 Person person = getOrCreatePerson(crew.name());
@@ -204,7 +232,7 @@ public class MovieService {
             List<String> actors = movie.getRoles().stream()
                 .filter(r -> r.getRoleType() == RoleType.ACTOR)
                 .map(r -> r.getPerson().getName())
-                .limit(9)
+                .limit(15)
                 .toList();
 
             return new MovieDetailsUI(
@@ -212,14 +240,19 @@ public class MovieService {
                 movie.getDescription(),
                 movie.getImdbRating(),
                 movie.getReleaseYear(),
+                movie.getReleaseDate(),
+                movie.getRuntime(),
                 movie.getImageUrl(),
+                movie.getGenre(),
                 directors,
-                actors
+                actors,
+                movie.getTagline(),
+                movie.getVoteCount(),
+                movie.getStatus(),
+                movie.getSpokenLanguages(),
+                movie.getHomepage()
             );
+
         });
     }
-
-
-
-
 }

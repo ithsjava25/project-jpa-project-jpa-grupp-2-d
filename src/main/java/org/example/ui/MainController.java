@@ -161,7 +161,8 @@ public class MainController {
         String posterPath = movie.getPosterPath();
 
         if (posterPath != null && !posterPath.isBlank()) {
-            poster.setImage(new Image(IMAGE_BASE_URL + posterPath, true));
+            String imageUrl = IMAGE_BASE_URL + posterPath;
+            poster.setImage(ImageCache.get(imageUrl));
         } else {
             poster.setImage(new Image(Objects.requireNonNull(
                 getClass().getResourceAsStream("/images/no-poster.jpg"))));

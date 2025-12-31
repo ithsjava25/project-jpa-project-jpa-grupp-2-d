@@ -42,7 +42,7 @@
             </ToolBar>
 
             <!-- Filter Bar -->
-            <HBox spacing="10" alignment="CENTER_LEFT">
+            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 0 6;">
                 <Label text="Genre:" style="-fx-text-fill: white;"/>
 
                 <ComboBox fx:id="genreComboBox"
@@ -77,7 +77,4 @@
 
         </ScrollPane>
     </center>
-
-
-
 </BorderPane>
