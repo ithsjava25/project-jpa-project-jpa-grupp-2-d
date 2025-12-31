@@ -9,6 +9,7 @@ import org.example.repository.RoleRepository;
 import org.example.ui.MovieDetailsUI;
 import org.example.util.JPAUtil;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -132,11 +133,20 @@ public class MovieService {
         }
 
         if (details.releaseDate() != null && !details.releaseDate().isBlank()) {
-            LocalDate releaseDate = LocalDate.parse(details.releaseDate());
+            try {
+                LocalDate releaseDate = LocalDate.parse(details.releaseDate());
 
-            movie.setReleaseDate(releaseDate);          // 2024-02-24
-            movie.setReleaseYear(releaseDate.getYear()); // 2024
+                movie.setReleaseDate(releaseDate);
+                movie.setReleaseYear(releaseDate.getYear());
+
+            } catch (DateTimeParseException e) {
+                System.err.println(
+                    "Invalid release date from TMDB for movie " + movie.getTmdbId()
+                        + ": " + details.releaseDate()
+                );
+            }
         }
+
 
 
         // TMDB returns genres as objects with id and name
