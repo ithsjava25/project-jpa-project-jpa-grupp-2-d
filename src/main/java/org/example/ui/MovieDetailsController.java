@@ -86,9 +86,13 @@ public class MovieDetailsController {
             taglineLabel.setVisible(false);
         }
 
-        voteCountLabel.setText(
-            "Total votes: " + movie.getVoteCount()
-        );
+        if (movie.getVoteCount() != null) {
+            voteCountLabel.setText("Total votes: " + movie.getVoteCount());
+            voteCountLabel.setVisible(true);
+        } else {
+            voteCountLabel.setVisible(false);
+        }
+
 
         if (movie.getStatus() != null) {
             statusLabel.setText("Status: " + movie.getStatus());
