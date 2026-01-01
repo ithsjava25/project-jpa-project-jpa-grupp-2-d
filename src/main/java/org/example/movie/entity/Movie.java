@@ -37,6 +37,9 @@ public class Movie {
     private Integer runtime;
     @Column(length = 50)
     private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MovieTag tag;
 
 
     public String getStatus() { return status; }
@@ -100,4 +103,6 @@ public class Movie {
         roles.add(role);
         role.setMovie(this);
     }
+    public MovieTag getTag() { return tag; }
+    public void setTag(MovieTag tag) { this.tag = tag; }
 }
