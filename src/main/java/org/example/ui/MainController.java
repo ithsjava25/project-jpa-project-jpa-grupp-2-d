@@ -14,6 +14,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.example.enums.ViewType;
 import org.example.movie.entity.Movie;
 import org.example.service.MovieService;
 
@@ -46,25 +47,28 @@ public class MainController {
     private List<UIMovie> allMovies = new ArrayList<>();
     private List<UIMovie> displayedMovies = new ArrayList<>();
 
+    private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+    private static final double CARD_WIDTH = 160;
+    private static final double CARD_HEIGHT = 280;
+    private static final double POSTER_HEIGHT = 220;
+    private ViewType currentView = ViewType.TOP_RATED;
+    private ViewType initialView = ViewType.TOP_RATED;
+
+
+    public void setInitialView(ViewType viewType) {
+        this.initialView = viewType;
+    }
+
 
     @FXML
-    private void loadTopRatedFromDatabase() {
+    public void loadTopRatedFromDatabase() {
+        currentView = ViewType.TOP_RATED;
         setActive(homeButton);
         loadFromDatabase();
     }
-
     @FXML
-    private void search() {
-        applyFilters();
-    }
-
-    @FXML
-    private void loadTopRated() {
-        loadFromDatabase();
-    }
-
-    @FXML
-    private void loadNewReleases() {
+    public void loadNewReleases() {
+        currentView = ViewType.NOW_PLAYING;
         setActive(newReleasesButton);
         List<Movie> movies = movieService.getNowPlayingMoviesFromDb();
 
@@ -75,24 +79,31 @@ public class MainController {
         setupGenresFromDb();
         applyFilters();
     }
-
-
+    @FXML
+    private void search() {
+        applyFilters();
+    }
     @FXML
     private void filterByGenre() {
         applyFilters();
     }
-
     @FXML
     public void initialize() {
-        setActive(homeButton);
-        loadFromDatabase();
+        currentView = initialView;
+
+        if (initialView == ViewType.NOW_PLAYING) {
+            setActive(newReleasesButton);
+            loadNowPlayingFromDatabase();
+        } else {
+            setActive(homeButton);
+            loadFromDatabase();
+        }
 
         searchField.textProperty().addListener((obs, oldValue, newValue) -> {
             applyFilters();
         });
-        setupGenresFromDb();
-        applyFilters();
 
+        setupGenresFromDb();
     }
 
     private void loadFromDatabase() {
@@ -105,7 +116,6 @@ public class MainController {
         setupGenresFromDb();
         applyFilters();
     }
-
     private void setupGenresFromDb() {
         Set<String> genres = allMovies.stream()
             .flatMap(movie -> movie.getGenre().stream())
@@ -115,7 +125,6 @@ public class MainController {
         genreComboBox.getItems().addAll(genres);
         genreComboBox.getSelectionModel().select("All");
     }
-
     private void applyFilters() {
         String query = searchField.getText().toLowerCase();
         String selectedGenre = genreComboBox.getValue();
@@ -134,7 +143,6 @@ public class MainController {
 
         refreshGrid();
     }
-
     private void refreshGrid() {
         movieContainer.getChildren().clear();
 
@@ -142,12 +150,6 @@ public class MainController {
             movieContainer.getChildren().add(createMovieCard(movie))
         );
     }
-
-    private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-    private static final double CARD_WIDTH = 160;
-    private static final double CARD_HEIGHT = 280;
-    private static final double POSTER_HEIGHT = 220;
-
     private VBox createMovieCard(UIMovie movie) {
         VBox card = new VBox(6);
         card.setPrefSize(CARD_WIDTH, CARD_HEIGHT);
@@ -205,7 +207,6 @@ public class MainController {
         card.getChildren().addAll(poster, title, meta);
         return card;
     }
-
     private void openMovieDetails(UIMovie movie) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -214,7 +215,8 @@ public class MainController {
 
             loader.setControllerFactory(type -> {
                 if (type == MovieDetailsController.class) {
-                    return new MovieDetailsController(movieService);
+                    return new MovieDetailsController(movieService, currentView);
+
                 }
                 try {
                     return type.getDeclaredConstructor().newInstance();
@@ -249,11 +251,20 @@ public class MainController {
             throw new RuntimeException("Failed to open movie details view", e);
         }
     }
-
     private void setActive(Button active) {
         homeButton.getStyleClass().remove("active");
         newReleasesButton.getStyleClass().remove("active");
         active.getStyleClass().add("active");
     }
+    private void loadNowPlayingFromDatabase() {
+        allMovies = movieService.getNowPlayingMoviesFromDb()
+            .stream()
+            .map(UIMovie::fromEntity)
+            .toList();
+
+        setupGenresFromDb();
+        applyFilters();
+    }
+
 
 }
