@@ -27,6 +27,7 @@
     );
     -fx-background-radius: 6;
 }
+
 .scroll-bar:vertical .thumb:hover,
 .scroll-bar:horizontal .thumb:hover {
     -fx-background-color: linear-gradient(
@@ -44,7 +45,6 @@
         #3A1EB6
     );
 }
-
 
 .scroll-bar .increment-button,
 .scroll-bar .decrement-button {
@@ -66,28 +66,14 @@
     -fx-text-fill: white;
     -fx-background-color: #222;
 }
+
 .combo-box-popup .list-view .list-cell:hover {
     -fx-background-color: #333;
 }
-.combo-box-popup .scroll-pane {
-    -fx-background-color: #222;
-}
-
-.combo-box-popup .scroll-pane .viewport {
-    -fx-background-color: #222;
-}
-.label {
-    -fx-text-fill: white;
-}
-
-.combo-box-popup .list-view {
-    -fx-background-color: #222;
-}
 
 .combo-box-popup .scroll-pane {
     -fx-background-color: #222;
 }
-
 
 .combo-box-popup .scroll-pane .viewport {
     -fx-background-color: #222;
@@ -97,6 +83,9 @@
     -fx-background-color: #222;
 }
 
+.label {
+    -fx-text-fill: white;
+}
 
 .movie-card {
     -fx-background-color: #1e1e1e;
@@ -110,12 +99,18 @@
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
 }
+
 .button {
     -fx-cursor: hand;
 }
+
 .combo-box {
     -fx-cursor: hand;
 }
+
+/* =========================
+   NAV BUTTONS (MainView)
+   ========================= */
 
 .button.nav-button {
     -fx-background-color: #333333;
@@ -123,7 +118,6 @@
     -fx-font-weight: bold;
     -fx-background-radius: 4;
     -fx-padding: 6 14;
-    -fx-cursor: hand;
 
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
@@ -131,14 +125,6 @@
 
 .button.nav-button:hover {
     -fx-background-color: #444444;
-}
-
-.button.nav-button.active {
-    -fx-background-color: #e50914;
-}
-
-.button.nav-button.active:hover {
-    -fx-background-color: #ff2a2a;
 }
 
 .button.nav-button:pressed {
@@ -156,11 +142,11 @@
     -fx-font-weight: bold;
     -fx-background-radius: 6;
     -fx-padding: 6 14;
-    -fx-cursor: hand;
 
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
+
 .button.nav-button-home:hover {
     -fx-background-color: linear-gradient(
         to right,
@@ -168,6 +154,7 @@
         #6A55FF
     );
 }
+
 .button.nav-button-home:pressed {
     -fx-background-color: linear-gradient(
         to right,
@@ -176,6 +163,18 @@
     );
     -fx-scale-y: 0.97;
 }
+
+/* 🔑 ENDA NYA REGELN – ACTIVE STATE */
+.button.nav-button.active,
+.button.nav-button-home.active {
+    -fx-background-color: linear-gradient(
+        to right,
+        #8B3CF6,
+        #5A3CF6
+    );
+}
+
+/* ========================= */
 
 .movie-divider {
     -fx-background-color: linear-gradient(
@@ -186,6 +185,7 @@
     );
     -fx-background-radius: 2;
 }
+
 .button.nav-button-back {
     -fx-background-color: linear-gradient(
         to right,
@@ -204,7 +204,6 @@
     -fx-padding: 4 10;
 }
 
-
 .rating-star {
     -fx-font-size: 14px;
 }
@@ -214,6 +213,7 @@
     -fx-font-weight: bold;
     -fx-font-size: 13px;
 }
+
 .poster-frame {
     -fx-background-color: #1e1e1e;
     -fx-padding: 8;
@@ -229,10 +229,12 @@
         4
     );
 }
+
 .poster-frame ImageView {
     -fx-background-radius: 6;
     -fx-border-radius: 6;
 }
+
 .external-link-button {
     -fx-text-fill: #cccccc;
     -fx-font-size: 13px;
@@ -260,4 +262,3 @@
 .external-link-button:pressed {
     -fx-background-color: rgba(255, 255, 255, 0.18);
 }
-
