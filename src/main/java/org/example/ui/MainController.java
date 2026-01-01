@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -39,14 +40,17 @@ public class MainController {
     @FXML
     private ComboBox<String> genreComboBox;
 
+    @FXML private Button homeButton;
+    @FXML private Button newReleasesButton;
 
     private List<UIMovie> allMovies = new ArrayList<>();
     private List<UIMovie> displayedMovies = new ArrayList<>();
 
 
     @FXML
-    private void loadHome() {
-        applyFilters();
+    private void loadTopRatedFromDatabase() {
+        setActive(homeButton);
+        loadFromDatabase();
     }
 
     @FXML
@@ -61,8 +65,17 @@ public class MainController {
 
     @FXML
     private void loadNewReleases() {
-        loadFromDatabase();
+        setActive(newReleasesButton);
+        List<Movie> movies = movieService.getNowPlayingMoviesFromDb();
+
+        allMovies = movies.stream()
+            .map(UIMovie::fromEntity)
+            .toList();
+
+        setupGenresFromDb();
+        applyFilters();
     }
+
 
     @FXML
     private void filterByGenre() {
@@ -71,6 +84,7 @@ public class MainController {
 
     @FXML
     public void initialize() {
+        setActive(homeButton);
         loadFromDatabase();
 
         searchField.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -82,7 +96,7 @@ public class MainController {
     }
 
     private void loadFromDatabase() {
-        List<Movie> movies = movieService.getAllMovies();
+        List<Movie> movies = movieService.getTopRatedMoviesFromDb();
 
         allMovies = movies.stream()
             .map(UIMovie::fromEntity)
@@ -234,6 +248,12 @@ public class MainController {
         } catch (IOException e) {
             throw new RuntimeException("Failed to open movie details view", e);
         }
+    }
+
+    private void setActive(Button active) {
+        homeButton.getStyleClass().remove("active");
+        newReleasesButton.getStyleClass().remove("active");
+        active.getStyleClass().add("active");
     }
 
 }
