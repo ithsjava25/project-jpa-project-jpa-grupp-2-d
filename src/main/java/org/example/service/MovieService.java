@@ -40,6 +40,7 @@ public class MovieService {
         }
         // if db is empty, import from Tmdb endpoints
         importAllDataFromTmdb();
+        importNowPlaying();
 
         // after import get all movies from db
         return movieRepository.findAll();
@@ -70,7 +71,7 @@ public class MovieService {
 
             for (MovieDTO movieDTO : response.results()) {
 
-                Movie movie = createMovieIfNotExists(movieDTO);
+                Movie movie = createMovieIfNotExists(movieDTO, MovieTag.TOP_RATED);
 
                 importMovieDetails(movie);
                 importCredits(movie);
@@ -78,8 +79,19 @@ public class MovieService {
         }
     }
 
+    public void importNowPlaying() {
+        NowPlayingDTO response = tmdbClient.getNowPlayingMovies();
 
-    private Movie createMovieIfNotExists(MovieDTO dto) {
+        for (MovieDTO dto : response.results()) {
+            Movie movie = createMovieIfNotExists(dto, MovieTag.NOW_PLAYING);
+            importMovieDetails(movie);
+            importCredits(movie);
+        }
+    }
+
+
+
+    private Movie createMovieIfNotExists(MovieDTO dto, MovieTag tag) {
         // try to find if movie already exist with tmdbId
         // if movie already exists, return it directly
         return movieRepository
@@ -87,6 +99,8 @@ public class MovieService {
             .orElseGet(() -> {
                 // if not exist, create a new movie entity using title and tmdbId
                 Movie movie = new Movie(dto.title(), dto.id());
+
+                movie.setTag(tag);
 
                 // Map data that is available from the TopRatedMovies endpoint
                 // TMDB 'overview' =  Movie 'description'
@@ -255,4 +269,13 @@ public class MovieService {
 
         });
     }
+
+    public List<Movie> getTopRatedMoviesFromDb() {
+        return movieRepository.findByTag(MovieTag.TOP_RATED);
+    }
+
+    public List<Movie> getNowPlayingMoviesFromDb() {
+        return movieRepository.findByTag(MovieTag.NOW_PLAYING);
+    }
+
 }
