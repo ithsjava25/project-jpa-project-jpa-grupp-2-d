@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -56,7 +57,7 @@ public class MovieDetailsController {
     private Label languagesLabel;
 
     @FXML
-    private Hyperlink homepageLink;
+    private Button homepageLink;
 
 
     public MovieDetailsController(MovieService movieService) {
@@ -110,7 +111,7 @@ public class MovieDetailsController {
 
         if (movie.getHomepage() != null && !movie.getHomepage().isBlank()) {
             homepageLink.setVisible(true);
-            homepageLink.setText("🔗 Movie Page");
+            homepageLink.setText("Movie Page");
             homepageLink.setOnAction(e ->
                 org.example.App.HOST_SERVICES.showDocument(movie.getHomepage())
             );
