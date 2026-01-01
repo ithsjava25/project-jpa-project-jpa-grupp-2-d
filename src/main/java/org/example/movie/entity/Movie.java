@@ -57,6 +57,13 @@ public class Movie {
         this.title = title;
         this.tmdbId = tmdbId;
     }
+
+    public Movie(String title, Integer tmdbId, MovieTag tag) {
+        this.title = title;
+        this.tmdbId = tmdbId;
+        this.tag = tag;
+    }
+
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
