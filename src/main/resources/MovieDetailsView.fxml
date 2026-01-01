@@ -41,7 +41,7 @@
                     </VBox>
 
 
-                    <Hyperlink fx:id="homepageLink"
+                    <Button  fx:id="homepageLink"
                                text="Movie Page"
                                focusTraversable="false"
                                styleClass="external-link-button"
