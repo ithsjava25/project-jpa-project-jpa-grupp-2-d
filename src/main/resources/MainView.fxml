@@ -16,17 +16,14 @@
 
 
             <ToolBar styleClass="top-bar" style="-fx-background-color: #141414;">
-                <Button text="Home"
+                <Button fx:id="homeButton"
+                        text="Home"
                         prefHeight="32"
-                        onAction="#loadHome"
-                        styleClass="nav-button-home"/>
-
-                <Button text="Top Rated"
-                        prefHeight="32"
-                        onAction="#loadTopRated"
+                        onAction="#loadTopRatedFromDatabase"
                         styleClass="nav-button"/>
 
-                <Button text="New Releases"
+                <Button fx:id="newReleasesButton"
+                        text="New Releases"
                         prefHeight="32"
                         onAction="#loadNewReleases"
                         styleClass="nav-button"/>
