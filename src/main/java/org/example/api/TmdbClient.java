@@ -100,7 +100,7 @@ public class TmdbClient {
             return gson.fromJson(response.body(), NowPlayingDTO.class);
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not get top rated movies from TMDB", e);
+            throw new RuntimeException("Could not get now playing movies from TMDB", e);
         }
     }
 
