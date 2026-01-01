@@ -89,8 +89,6 @@ public class MovieService {
         }
     }
 
-
-
     private Movie createMovieIfNotExists(MovieDTO dto, MovieTag tag) {
         // try to find if movie already exist with tmdbId
         // if movie already exists, return it directly
@@ -98,9 +96,10 @@ public class MovieService {
             .findByTmdbId(dto.id())
             .orElseGet(() -> {
                 // if not exist, create a new movie entity using title and tmdbId
-                Movie movie = new Movie(dto.title(), dto.id());
+                Movie movie = new Movie(dto.title(), dto.id(), tag);
 
-                movie.setTag(tag);
+
+
 
                 // Map data that is available from the TopRatedMovies endpoint
                 // TMDB 'overview' =  Movie 'description'
@@ -220,7 +219,6 @@ public class MovieService {
             });
     }
 
-
     private Person getOrCreatePerson(String name) {
         // Attempt to find an existing Person with the given name
 
@@ -229,7 +227,6 @@ public class MovieService {
             .findByName(name)
             .orElseGet(() -> personRepository.save(new Person(name)));
     }
-
 
     public MovieDetailsUI getMovieDetails(int tmdbId) {
         return JPAUtil.inTransactionResult(em -> {
