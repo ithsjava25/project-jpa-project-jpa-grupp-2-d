@@ -37,6 +37,9 @@ public class Movie {
     private Integer runtime;
     @Column(length = 50)
     private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MovieTag tag;
 
 
     public String getStatus() { return status; }
@@ -54,6 +57,13 @@ public class Movie {
         this.title = title;
         this.tmdbId = tmdbId;
     }
+
+    public Movie(String title, Integer tmdbId, MovieTag tag) {
+        this.title = title;
+        this.tmdbId = tmdbId;
+        this.tag = tag;
+    }
+
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -100,4 +110,6 @@ public class Movie {
         roles.add(role);
         role.setMovie(this);
     }
+    public MovieTag getTag() { return tag; }
+    public void setTag(MovieTag tag) { this.tag = tag; }
 }

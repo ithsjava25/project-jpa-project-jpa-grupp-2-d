@@ -3,6 +3,7 @@ package org.example.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.example.movie.entity.Movie;
+import org.example.movie.entity.MovieTag;
 import org.example.util.JPAUtil;
 
 import java.util.List;
@@ -118,5 +119,21 @@ public class MovieRepositoryImpl implements MovieRepository {
             .getResultStream()
             .findFirst();
     }
+
+    @Override
+    public List<Movie> findByTag(MovieTag tag) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT m FROM Movie m WHERE m.tag = :tag",
+                    Movie.class
+                )
+                .setParameter("tag", tag)
+                .getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
 
 }

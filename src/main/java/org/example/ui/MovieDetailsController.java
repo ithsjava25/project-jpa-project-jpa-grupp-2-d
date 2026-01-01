@@ -4,9 +4,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import org.example.enums.ViewType;
 import org.example.service.MovieService;
 import javafx.scene.control.Label;
 import java.io.IOException;
@@ -17,6 +18,8 @@ public class MovieDetailsController {
     private final MovieService movieService;
     private MovieDetailsUI movie;
     private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+    private final ViewType previousView;
+
 
     @FXML
     private Label titleLabel;
@@ -56,11 +59,12 @@ public class MovieDetailsController {
     private Label languagesLabel;
 
     @FXML
-    private Hyperlink homepageLink;
+    private Button homepageLink;
 
 
-    public MovieDetailsController(MovieService movieService) {
+    public MovieDetailsController(MovieService movieService, ViewType previousView) {
         this.movieService = movieService;
+        this.previousView = previousView;
     }
 
     public void loadMovie(int tmdbId) {
@@ -110,7 +114,7 @@ public class MovieDetailsController {
 
         if (movie.getHomepage() != null && !movie.getHomepage().isBlank()) {
             homepageLink.setVisible(true);
-            homepageLink.setText("🔗 Movie Page");
+            homepageLink.setText("Movie Page");
             homepageLink.setOnAction(e ->
                 org.example.App.HOST_SERVICES.showDocument(movie.getHomepage())
             );
@@ -177,7 +181,12 @@ public class MovieDetailsController {
 
             loader.setControllerFactory(type -> {
                 if (type == MainController.class) {
-                    return new MainController(movieService);
+                    MainController controller = new MainController(movieService);
+
+
+                    controller.setInitialView(previousView);
+
+                    return controller;
                 }
                 try {
                     return type.getDeclaredConstructor().newInstance();
@@ -189,7 +198,6 @@ public class MovieDetailsController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-
             scene.getStylesheets().add(
                 getClass().getResource("/styles/app.css").toExternalForm()
             );
@@ -201,6 +209,7 @@ public class MovieDetailsController {
             e.printStackTrace();
         }
     }
+
 
     private String formatRuntime(Integer runtime) {
         if (runtime == null || runtime <= 0) {
