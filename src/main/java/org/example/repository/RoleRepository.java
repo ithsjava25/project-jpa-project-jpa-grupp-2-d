@@ -11,4 +11,7 @@ public interface RoleRepository {
     List<Role> findByMovieId(Long movieId);
 
     List<Role> findByPersonId(Long personId);
+
+    void deleteAll();
+
 }
