@@ -14,4 +14,7 @@ public interface PersonRepository {
     Optional<Person> findByName(String name);
 
     List<Person> findAll();
+
+    void deleteAll();
+
 }

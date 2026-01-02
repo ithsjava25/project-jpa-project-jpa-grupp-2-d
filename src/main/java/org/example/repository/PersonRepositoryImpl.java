@@ -60,4 +60,12 @@ public class PersonRepositoryImpl implements PersonRepository {
             em.close();
         }
     }
+
+    @Override
+    public void deleteAll() {
+        JPAUtil.inTransaction(em -> {
+            em.createQuery("DELETE FROM Person").executeUpdate();
+        });
+    }
+
 }
