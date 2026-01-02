@@ -103,7 +103,7 @@ public class TmdbClient {
             return gson.fromJson(response.body(), NowPlayingDTO.class);
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not get now playing movies", e);
+            throw new RuntimeException("Could not get now playing movies from TMDB", e);
         }
     }
 
@@ -179,7 +179,7 @@ public class TmdbClient {
             return gson.fromJson(response.body(), GenreListDTO.class).genres();
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not load genres", e);
+            throw new RuntimeException("Could not get genres from TMDB", e);
         }
     }
 
@@ -208,7 +208,7 @@ public class TmdbClient {
             return gson.fromJson(response.body(), TopRatedResponseDTO.class);
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not get top rated movies", e);
+            throw new RuntimeException("Could not get top rated movies from TMDB", e);
         }
     }
 
