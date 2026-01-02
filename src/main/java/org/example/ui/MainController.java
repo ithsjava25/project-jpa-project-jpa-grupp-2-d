@@ -88,10 +88,15 @@ public class MainController {
             ? "/icons/settingsDark.png"
             : "/icons/settingsLight.png";
 
-        settingsIcon.setImage(
-            new Image(getClass().getResourceAsStream(iconPath))
-        );
+        var iconStream = getClass().getResourceAsStream(iconPath);
+        if (iconStream == null) {
+            System.err.println("Warning: Settings icon not found at " + iconPath);
+            return;
+        }
+
+        settingsIcon.setImage(new Image(iconStream));
     }
+
 
     @FXML
     private void search() {
