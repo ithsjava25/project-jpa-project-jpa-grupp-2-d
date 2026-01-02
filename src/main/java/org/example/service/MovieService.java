@@ -1,5 +1,6 @@
 package org.example.service;
 
+import jakarta.persistence.EntityManager;
 import org.example.api.TmdbClient;
 import org.example.dto.*;
 import org.example.movie.entity.*;
@@ -10,7 +11,6 @@ import org.example.ui.MovieDetailsUI;
 import org.example.util.JPAUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Comparator;
 import java.util.List;
 
 public class MovieService {
@@ -55,7 +55,6 @@ public class MovieService {
     public List<Role> getCreditsForMovie(int tmdbId) {
         Movie movie = getMovieByTmdbId(tmdbId);
 
-        // kan kräva transaction(LAZY)
         return movie.getRoles();
     }
 
@@ -105,31 +104,25 @@ public class MovieService {
         return movieRepository
             .findByTmdbId(dto.id())
             .map(existing -> {
-                // A movie can currently have only one tag.
-                // If imported again with a different tag,
-                // the tag is intentionally overwritten.
+
                 if (existing.getTag() != tag) {
                     existing.setTag(tag);
                     movieRepository.save(existing);
                 }
                 return existing;
             })
-
             .orElseGet(() -> {
                 Movie movie = new Movie(dto.title(), dto.id(), tag);
+
+
                 movie.setDescription(dto.overview());
                 movie.setImdbRating(dto.voteAverage());
                 movie.setImageUrl(dto.posterPath());
 
-                if (dto.releaseDate() != null && !dto.releaseDate().isBlank()) {
-                    movie.setReleaseYear(
-                        Integer.parseInt(dto.releaseDate().substring(0, 4))
-                    );
-                }
-
                 return movieRepository.save(movie);
             });
     }
+
 
 
     private void importMovieDetails(Movie movie) {
@@ -199,7 +192,7 @@ public class MovieService {
             credits.cast().stream()
                 .limit(15)
                 .forEach(cast -> {
-                    Person person = getOrCreatePerson(cast.name());
+                    Person person = getOrCreatePerson(em, cast.name());
                     Role role = new Role(RoleType.ACTOR, null, person);
                     role.setCreditOrder(cast.order());
                     managedMovie.addRole(role);
@@ -209,7 +202,7 @@ public class MovieService {
                 .filter(c -> "Director".equalsIgnoreCase(c.job()))
                 .limit(5)
                 .forEach(crew -> {
-                    Person person = getOrCreatePerson(crew.name());
+                    Person person = getOrCreatePerson(em, crew.name());
                     Role role = new Role(RoleType.DIRECTOR, null, person);
                     managedMovie.addRole(role);
                 });
@@ -217,15 +210,12 @@ public class MovieService {
     }
 
 
-
-    private Person getOrCreatePerson(String name) {
-        // Attempt to find an existing Person with the given name
-
+    private Person getOrCreatePerson(EntityManager em, String name) {
         return personRepository
-            // If no Person is found, create and persist a new one
-            .findByName(name)
-            .orElseGet(() -> personRepository.save(new Person(name)));
+            .findByName(em, name)
+            .orElseGet(() -> personRepository.save(em, new Person(name)));
     }
+
 
     public MovieDetailsUI getMovieDetails(int tmdbId) {
         return JPAUtil.inTransactionResult(em -> {
@@ -278,15 +268,12 @@ public class MovieService {
     // NOTE: Deletes are executed here to ensure single-transaction atomicity.
     // Repository deleteAll() methods are intentionally not used.
     public void resetDatabaseAndImport() {
-
-        // 1️⃣ Rensa databasen – snabbt & atomiskt
         JPAUtil.inTransaction(em -> {
             em.createQuery("DELETE FROM Role").executeUpdate();
             em.createQuery("DELETE FROM Person").executeUpdate();
             em.createQuery("DELETE FROM Movie").executeUpdate();
         });
 
-        // 2️⃣ Import – UTANFÖR reset-transaktionen
         importAllDataFromTmdb();
         importNowPlaying();
     }
