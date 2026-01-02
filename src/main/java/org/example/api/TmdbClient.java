@@ -78,9 +78,12 @@ public class TmdbClient {
         }
     }
 
-    public NowPlayingDTO getNowPlayingMovies() {
+    public NowPlayingDTO getNowPlayingMovies(int page) {
         try {
-            String url = baseUrl + "/movie/now_playing?api_key=" + apiKey;
+            String url = baseUrl
+                + "/movie/now_playing"
+                + "?api_key=" + apiKey
+                + "&page=" + page;
 
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -103,6 +106,7 @@ public class TmdbClient {
             throw new RuntimeException("Could not get now playing movies from TMDB", e);
         }
     }
+
 
     public MovieDetailsDTO getMovieDetails(int movieId) {
         try {
@@ -175,7 +179,7 @@ public class TmdbClient {
             return gson.fromJson(response.body(), GenreListDTO.class).genres();
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not load genres", e);
+            throw new RuntimeException("Could not get genres from TMDB", e);
         }
     }
 
@@ -204,7 +208,7 @@ public class TmdbClient {
             return gson.fromJson(response.body(), TopRatedResponseDTO.class);
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not get top rated movies", e);
+            throw new RuntimeException("Could not get top rated movies from TMDB", e);
         }
     }
 

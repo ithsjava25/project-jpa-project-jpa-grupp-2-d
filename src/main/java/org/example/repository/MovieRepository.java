@@ -27,6 +27,7 @@ public interface MovieRepository {
 
         List<Movie> findByTag(MovieTag tag);
 
+        void deleteAll();
 
 }
 

@@ -22,6 +22,15 @@ public class PersonRepositoryImpl implements PersonRepository {
         return person;
     }
 
+    @Override
+    public Person save(EntityManager em, Person person) {
+        if (person.getId() == null) {
+            em.persist(person);
+            return person;
+        }
+        return em.merge(person);
+    }
+
 
     @Override
     public Optional<Person> findById(Long id) {
@@ -33,6 +42,7 @@ public class PersonRepositoryImpl implements PersonRepository {
         }
     }
 
+    // 🟢 uses when we are not already in a transaction
     @Override
     public Optional<Person> findByName(String name) {
         EntityManager em = JPAUtil.getEntityManager();
@@ -48,6 +58,18 @@ public class PersonRepositoryImpl implements PersonRepository {
         }
     }
 
+    // uses when already in a transaction
+    @Override
+    public Optional<Person> findByName(EntityManager em, String name) {
+        TypedQuery<Person> query = em.createQuery(
+            "SELECT p FROM Person p WHERE p.name = :name",
+            Person.class
+        );
+        query.setParameter("name", name);
+        return query.getResultStream().findFirst();
+    }
+
+
     @Override
     public List<Person> findAll() {
         EntityManager em = JPAUtil.getEntityManager();
@@ -60,4 +82,12 @@ public class PersonRepositoryImpl implements PersonRepository {
             em.close();
         }
     }
+
+    @Override
+    public void deleteAll() {
+        JPAUtil.inTransaction(em -> {
+            em.createQuery("DELETE FROM Person").executeUpdate();
+        });
+    }
+
 }

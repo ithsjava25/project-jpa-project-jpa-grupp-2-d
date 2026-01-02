@@ -54,6 +54,9 @@ public class MainController {
     private ViewType currentView = ViewType.TOP_RATED;
     private ViewType initialView = ViewType.TOP_RATED;
 
+    @FXML
+    private ImageView settingsIcon;
+
 
     public void setInitialView(ViewType viewType) {
         this.initialView = viewType;
@@ -79,6 +82,22 @@ public class MainController {
         setupGenresFromDb();
         applyFilters();
     }
+
+    private void updateSettingsIcon() {
+        String iconPath = ThemeManager.isLightMode()
+            ? "/icons/settingsDark.png"
+            : "/icons/settingsLight.png";
+
+        var iconStream = getClass().getResourceAsStream(iconPath);
+        if (iconStream == null) {
+            System.err.println("Warning: Settings icon not found at " + iconPath);
+            return;
+        }
+
+        settingsIcon.setImage(new Image(iconStream));
+    }
+
+
     @FXML
     private void search() {
         applyFilters();
@@ -90,6 +109,7 @@ public class MainController {
     @FXML
     public void initialize() {
         currentView = initialView;
+        updateSettingsIcon();
 
         if (initialView == ViewType.NOW_PLAYING) {
             setActive(newReleasesButton);
@@ -240,10 +260,8 @@ public class MainController {
             stage.setMinHeight(800);
             stage.setResizable(false);
 
-            var css = getClass().getResource("/styles/app.css");
-            if (css != null) {
-                scene.getStylesheets().add(css.toExternalForm());
-            }
+            ThemeManager.apply(scene);
+
 
             stage.setScene(scene);
 
@@ -264,6 +282,37 @@ public class MainController {
 
         setupGenresFromDb();
         applyFilters();
+    }
+
+    @FXML
+    private void openSettings() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/SettingsView.fxml")
+            );
+
+            loader.setControllerFactory(type -> {
+                if (type == SettingsController.class) {
+                    return new SettingsController(movieService);
+                }
+                try {
+                    return type.getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            ThemeManager.apply(scene);
+
+            Stage stage = (Stage) movieContainer.getScene().getWindow();
+            stage.setScene(scene);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to open settings view", e);
+        }
     }
 
 

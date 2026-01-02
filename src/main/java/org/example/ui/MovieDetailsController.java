@@ -198,9 +198,7 @@ public class MovieDetailsController {
             Parent root = loader.load();
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(
-                getClass().getResource("/styles/app.css").toExternalForm()
-            );
+            ThemeManager.apply(scene);
 
             Stage stage = (Stage) titleLabel.getScene().getWindow();
             stage.setScene(scene);
