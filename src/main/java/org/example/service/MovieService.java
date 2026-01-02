@@ -62,7 +62,7 @@ public class MovieService {
     // imports ALL data from Tmdb
     private void importAllDataFromTmdb() {
 
-        int pagesToFetch = 5; // 5 * 20 = 100 filmer
+        int pagesToFetch = 5; // 5 * 20 = 100 movies
 
         for (int page = 1; page <= pagesToFetch; page++) {
 
@@ -81,7 +81,7 @@ public class MovieService {
 
     public void importNowPlaying() {
 
-        int pagesToFetch = 1; // 2 * 20 = 40 filmer
+        int pagesToFetch = 1; // 1 * 20 = 20 movies
 
         for (int page = 1; page <= pagesToFetch; page++) {
 
@@ -105,13 +105,16 @@ public class MovieService {
         return movieRepository
             .findByTmdbId(dto.id())
             .map(existing -> {
-                // om filmen redan finns men saknar NOW_PLAYING
+                // A movie can currently have only one tag.
+                // If imported again with a different tag,
+                // the tag is intentionally overwritten.
                 if (existing.getTag() != tag) {
                     existing.setTag(tag);
                     movieRepository.save(existing);
                 }
                 return existing;
             })
+
             .orElseGet(() -> {
                 Movie movie = new Movie(dto.title(), dto.id(), tag);
                 movie.setDescription(dto.overview());
@@ -146,7 +149,7 @@ public class MovieService {
 
         if (details.spokenLanguages() != null && !details.spokenLanguages().isEmpty()) {
             String languages = details.spokenLanguages().stream()
-                .map(SpokenLanguageDTO::englishName) // eller ::name om ni vill
+                .map(SpokenLanguageDTO::englishName)
                 .reduce((a, b) -> a + ", " + b)
                 .orElse(null);
 
@@ -169,7 +172,6 @@ public class MovieService {
         }
 
 
-
         // TMDB returns genres as objects with id and name
         // We store them as a comma-separated string ("Drama, Crime")
         if (details.genres() != null && !details.genres().isEmpty()) {
@@ -187,45 +189,34 @@ public class MovieService {
     }
 
     private void importCredits(Movie movie) {
-        // Fetch credits (cast and crew) from TMDB using the movie's tmdbId
-        CreditsDTO credits = tmdbClient.getMovieCredits(movie.getTmdbId());
 
+        JPAUtil.inTransaction(em -> {
 
-        // Takes max 15 actors
-        credits.cast().stream()
-            // TMDB cast är redan sorterad, men vi säkrar på order
-            .sorted(Comparator.comparingInt(CastDTO::order))
-            .limit(15)
-            .forEach(cast -> {
-                // Find existing Person by name or create a new one if it does not exist
-                Person person = getOrCreatePerson(cast.name());
+            Movie managedMovie = em.merge(movie);
 
-                // Create a new Role linking the Movie and the Person as an ACTOR
-                Role role = new Role(RoleType.ACTOR, movie, person);
+            CreditsDTO credits = tmdbClient.getMovieCredits(managedMovie.getTmdbId());
 
-                // Store the credit order (lower number = more prominent actor)
-                role.setCreditOrder(cast.order());
+            credits.cast().stream()
+                .limit(15)
+                .forEach(cast -> {
+                    Person person = getOrCreatePerson(cast.name());
+                    Role role = new Role(RoleType.ACTOR, null, person);
+                    role.setCreditOrder(cast.order());
+                    managedMovie.addRole(role);
+                });
 
-                // Persist the Role entity (links Movie ↔ Person)
-                roleRepository.save(role);
-            });
-
-        // Takes max 5 directors
-        credits.crew().stream()
-            // Filter only crew members with the job title "Director"
-            .filter(crew -> "Director".equalsIgnoreCase(crew.job()))
-            .limit(5)
-            .forEach(crew -> {
-                // Find existing Person by name or create a new one if it does not exist
-                Person person = getOrCreatePerson(crew.name());
-
-                // Create a new Role linking the Movie and the Person as a DIRECTOR
-                Role role = new Role(RoleType.DIRECTOR, movie, person);
-
-                // Persist the Role entity
-                roleRepository.save(role);
-            });
+            credits.crew().stream()
+                .filter(c -> "Director".equalsIgnoreCase(c.job()))
+                .limit(5)
+                .forEach(crew -> {
+                    Person person = getOrCreatePerson(crew.name());
+                    Role role = new Role(RoleType.DIRECTOR, null, person);
+                    managedMovie.addRole(role);
+                });
+        });
     }
+
+
 
     private Person getOrCreatePerson(String name) {
         // Attempt to find an existing Person with the given name
@@ -283,19 +274,27 @@ public class MovieService {
         return movieRepository.findByTag(MovieTag.NOW_PLAYING);
     }
 
+
+    // NOTE: Deletes are executed here to ensure single-transaction atomicity.
+    // Repository deleteAll() methods are intentionally not used.
     public void resetDatabaseAndImport() {
 
+        // 1️⃣ Rensa databasen – snabbt & atomiskt
         JPAUtil.inTransaction(em -> {
-
-
-            roleRepository.deleteAll();
-            personRepository.deleteAll();
-            movieRepository.deleteAll();
-
+            em.createQuery("DELETE FROM Role").executeUpdate();
+            em.createQuery("DELETE FROM Person").executeUpdate();
+            em.createQuery("DELETE FROM Movie").executeUpdate();
         });
 
+        // 2️⃣ Import – UTANFÖR reset-transaktionen
         importAllDataFromTmdb();
         importNowPlaying();
     }
+
+
+
+
+
+
 
 }
