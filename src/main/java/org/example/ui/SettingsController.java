@@ -4,7 +4,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -29,8 +31,6 @@ public class SettingsController {
     public SettingsController(MovieService movieService) {
         this.movieService = movieService;
     }
-    @FXML
-    private Button backButton;
 
     @FXML
     private void setDarkMode() {
@@ -44,6 +44,18 @@ public class SettingsController {
 
     @FXML
     private void onResetDatabase() {
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm database reset");
+        confirm.setHeaderText("Reset database?");
+        confirm.setContentText(
+            "This will delete all movies and re-import data.\n" +
+                "This operation can take up to 1 minute."
+        );
+
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
 
         loadingOverlay.setVisible(true);
         importButton.setDisable(true);
@@ -64,11 +76,26 @@ public class SettingsController {
         task.setOnFailed(e -> {
             loadingOverlay.setVisible(false);
             importButton.setDisable(false);
-            task.getException().printStackTrace();
+
+            Throwable ex = task.getException();
+            ex.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Import Failed");
+            alert.setHeaderText("Database reset failed");
+            alert.setContentText(
+                ex.getMessage() != null
+                    ? ex.getMessage()
+                    : "An unexpected error occurred during import."
+            );
+            alert.showAndWait();
         });
 
-        new Thread(task).start();
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
+
 
 
 
