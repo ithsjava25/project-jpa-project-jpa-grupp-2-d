@@ -78,9 +78,12 @@ public class TmdbClient {
         }
     }
 
-    public NowPlayingDTO getNowPlayingMovies() {
+    public NowPlayingDTO getNowPlayingMovies(int page) {
         try {
-            String url = baseUrl + "/movie/now_playing?api_key=" + apiKey;
+            String url = baseUrl
+                + "/movie/now_playing"
+                + "?api_key=" + apiKey
+                + "&page=" + page;
 
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -100,9 +103,10 @@ public class TmdbClient {
             return gson.fromJson(response.body(), NowPlayingDTO.class);
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not get now playing movies from TMDB", e);
+            throw new RuntimeException("Could not get now playing movies", e);
         }
     }
+
 
     public MovieDetailsDTO getMovieDetails(int movieId) {
         try {
