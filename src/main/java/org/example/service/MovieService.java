@@ -80,46 +80,54 @@ public class MovieService {
     }
 
     public void importNowPlaying() {
-        NowPlayingDTO response = tmdbClient.getNowPlayingMovies();
 
-        for (MovieDTO dto : response.results()) {
-            Movie movie = createMovieIfNotExists(dto, MovieTag.NOW_PLAYING);
-            importMovieDetails(movie);
-            importCredits(movie);
+        int pagesToFetch = 1; // 2 * 20 = 40 filmer
+
+        for (int page = 1; page <= pagesToFetch; page++) {
+
+            NowPlayingDTO response =
+                tmdbClient.getNowPlayingMovies(page);
+            System.out.println("Now playing response.page = " + response.page());
+
+            for (MovieDTO dto : response.results()) {
+
+                Movie movie =
+                    createMovieIfNotExists(dto, MovieTag.NOW_PLAYING);
+
+                importMovieDetails(movie);
+                importCredits(movie);
+            }
         }
     }
 
+
     private Movie createMovieIfNotExists(MovieDTO dto, MovieTag tag) {
-        // try to find if movie already exist with tmdbId
-        // if movie already exists, return it directly
         return movieRepository
             .findByTmdbId(dto.id())
+            .map(existing -> {
+                // om filmen redan finns men saknar NOW_PLAYING
+                if (existing.getTag() != tag) {
+                    existing.setTag(tag);
+                    movieRepository.save(existing);
+                }
+                return existing;
+            })
             .orElseGet(() -> {
-                // if not exist, create a new movie entity using title and tmdbId
                 Movie movie = new Movie(dto.title(), dto.id(), tag);
-
-
-
-
-                // Map data that is available from the TopRatedMovies endpoint
-                // TMDB 'overview' =  Movie 'description'
                 movie.setDescription(dto.overview());
-
-                // Map TMDB rating to Movie rating field
                 movie.setImdbRating(dto.voteAverage());
-
                 movie.setImageUrl(dto.posterPath());
 
-                // Extract release year from full release date string (YYYY-MM-DD)
                 if (dto.releaseDate() != null && !dto.releaseDate().isBlank()) {
-                    movie.setReleaseYear(Integer.parseInt(dto.releaseDate().substring(0, 4)));
+                    movie.setReleaseYear(
+                        Integer.parseInt(dto.releaseDate().substring(0, 4))
+                    );
                 }
 
-                // Persist the newly created Movie entity to the database
-                // After saving, the Movie will have a generated database id
                 return movieRepository.save(movie);
             });
     }
+
 
     private void importMovieDetails(Movie movie) {
         // Fetch detailed movie information from TMDB using the movie's tmdbId
@@ -273,6 +281,21 @@ public class MovieService {
 
     public List<Movie> getNowPlayingMoviesFromDb() {
         return movieRepository.findByTag(MovieTag.NOW_PLAYING);
+    }
+
+    public void resetDatabaseAndImport() {
+
+        JPAUtil.inTransaction(em -> {
+
+
+            roleRepository.deleteAll();
+            personRepository.deleteAll();
+            movieRepository.deleteAll();
+
+        });
+
+        importAllDataFromTmdb();
+        importNowPlaying();
     }
 
 }
