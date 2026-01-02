@@ -15,12 +15,18 @@ public final class ThemeManager {
 
     public static void apply(Scene scene) {
         scene.getStylesheets().clear();
-        scene.getStylesheets().add(
-            ThemeManager.class
-                .getResource(lightMode ? LIGHT_THEME : DARK_THEME)
-                .toExternalForm()
-        );
+
+        String cssPath = lightMode ? LIGHT_THEME : DARK_THEME;
+        var cssUrl = ThemeManager.class.getResource(cssPath);
+
+        if (cssUrl == null) {
+            System.err.println("Theme CSS not found: " + cssPath);
+            return;
+        }
+
+        scene.getStylesheets().add(cssUrl.toExternalForm());
     }
+
 
     public static void applyLight(Scene scene) {
         lightMode = true;
