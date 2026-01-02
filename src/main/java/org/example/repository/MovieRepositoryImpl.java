@@ -135,5 +135,13 @@ public class MovieRepositoryImpl implements MovieRepository {
         }
     }
 
+    @Override
+    public void deleteAll() {
+        JPAUtil.inTransaction(em -> {
+            em.createQuery("DELETE FROM Movie").executeUpdate();
+        });
+    }
+
+
 
 }
