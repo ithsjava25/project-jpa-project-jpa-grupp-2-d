@@ -3,19 +3,21 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
 
-<!--New version-->
+
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.ui.MainController"
-            style="-fx-background-color: #141414;">
+            styleClass="app-root">
 
     <!-- Top -->
     <top>
-        <VBox spacing="8" style="-fx-padding: 10; -fx-background-color: #141414;">
+        <VBox spacing="8"
+              styleClass="top-container">
 
+            <ToolBar styleClass="top-bar">
 
-            <ToolBar styleClass="top-bar" style="-fx-background-color: #141414;">
                 <Button fx:id="homeButton"
                         text="Home"
                         prefHeight="32"
@@ -32,31 +34,46 @@
                            prefHeight="32"
                            promptText="Search movies..."
                            prefWidth="300"
-                           style="-fx-background-color: #222;
-                           -fx-text-fill: white;
-                           -fx-prompt-text-fill: #999;"/>
+                           styleClass="search-field"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button fx:id="settingsButton"
+                        onAction="#openSettings"
+                        styleClass="icon-button">
+
+                    <graphic>
+                        <ImageView fx:id="settingsIcon"
+                                   fitWidth="16"
+                                   fitHeight="16"
+                                   preserveRatio="true"/>
+                    </graphic>
+
+                </Button>
 
             </ToolBar>
 
             <!-- Filter Bar -->
-            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 0 0 6;">
-                <Label text="Genre:" style="-fx-text-fill: white;"/>
+            <HBox spacing="10"
+                  alignment="CENTER_LEFT"
+                  styleClass="filter-bar">
+
+                <Label text="Genre:"/>
 
                 <ComboBox fx:id="genreComboBox"
                           promptText="All genres"
                           onAction="#filterByGenre"/>
-
             </HBox>
         </VBox>
     </top>
 
-    <!--Movie Grid-->
+    <!-- Movie Grid -->
     <center>
         <ScrollPane fx:id="scrollPane"
                     fitToWidth="true"
                     vbarPolicy="AS_NEEDED"
                     hbarPolicy="NEVER"
-                    style="-fx-background: #141414; -fx-background-color: #141414;">
+                    styleClass="main-scroll-pane">
 
             <content>
                 <FlowPane fx:id="movieContainer"
@@ -64,14 +81,15 @@
                           vgap="15"
                           prefWrapLength="1300"
                           alignment="TOP_LEFT"
-                          style="-fx-background-color: #141414;">
+                          styleClass="movie-container">
 
                     <padding>
                         <Insets top="15" right="15" bottom="15" left="15"/>
                     </padding>
+
                 </FlowPane>
             </content>
-
         </ScrollPane>
     </center>
+
 </BorderPane>

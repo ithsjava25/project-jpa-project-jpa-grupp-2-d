@@ -1,5 +1,6 @@
 package org.example.service;
 
+import jakarta.persistence.EntityManager;
 import org.example.api.TmdbClient;
 import org.example.dto.*;
 import org.example.movie.entity.*;
@@ -10,7 +11,6 @@ import org.example.ui.MovieDetailsUI;
 import org.example.util.JPAUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Comparator;
 import java.util.List;
 
 public class MovieService {
@@ -55,14 +55,13 @@ public class MovieService {
     public List<Role> getCreditsForMovie(int tmdbId) {
         Movie movie = getMovieByTmdbId(tmdbId);
 
-        // kan kräva transaction(LAZY)
         return movie.getRoles();
     }
 
     // imports ALL data from Tmdb
     private void importAllDataFromTmdb() {
 
-        int pagesToFetch = 5; // 5 * 20 = 100 filmer
+        int pagesToFetch = 5; // 5 * 20 = 100 movies
 
         for (int page = 1; page <= pagesToFetch; page++) {
 
@@ -80,46 +79,51 @@ public class MovieService {
     }
 
     public void importNowPlaying() {
-        NowPlayingDTO response = tmdbClient.getNowPlayingMovies();
 
-        for (MovieDTO dto : response.results()) {
-            Movie movie = createMovieIfNotExists(dto, MovieTag.NOW_PLAYING);
-            importMovieDetails(movie);
-            importCredits(movie);
+        int pagesToFetch = 1; // 1 * 20 = 20 movies
+
+        for (int page = 1; page <= pagesToFetch; page++) {
+
+            NowPlayingDTO response =
+                tmdbClient.getNowPlayingMovies(page);
+            System.out.println("Now playing response.page = " + response.page());
+
+            for (MovieDTO dto : response.results()) {
+
+                Movie movie =
+                    createMovieIfNotExists(dto, MovieTag.NOW_PLAYING);
+
+                importMovieDetails(movie);
+                importCredits(movie);
+            }
         }
     }
 
+
     private Movie createMovieIfNotExists(MovieDTO dto, MovieTag tag) {
-        // try to find if movie already exist with tmdbId
-        // if movie already exists, return it directly
         return movieRepository
             .findByTmdbId(dto.id())
+            .map(existing -> {
+
+                if (existing.getTag() != tag) {
+                    existing.setTag(tag);
+                    movieRepository.save(existing);
+                }
+                return existing;
+            })
             .orElseGet(() -> {
-                // if not exist, create a new movie entity using title and tmdbId
                 Movie movie = new Movie(dto.title(), dto.id(), tag);
 
 
-
-
-                // Map data that is available from the TopRatedMovies endpoint
-                // TMDB 'overview' =  Movie 'description'
                 movie.setDescription(dto.overview());
-
-                // Map TMDB rating to Movie rating field
                 movie.setImdbRating(dto.voteAverage());
-
                 movie.setImageUrl(dto.posterPath());
 
-                // Extract release year from full release date string (YYYY-MM-DD)
-                if (dto.releaseDate() != null && !dto.releaseDate().isBlank()) {
-                    movie.setReleaseYear(Integer.parseInt(dto.releaseDate().substring(0, 4)));
-                }
-
-                // Persist the newly created Movie entity to the database
-                // After saving, the Movie will have a generated database id
                 return movieRepository.save(movie);
             });
     }
+
+
 
     private void importMovieDetails(Movie movie) {
         // Fetch detailed movie information from TMDB using the movie's tmdbId
@@ -138,7 +142,7 @@ public class MovieService {
 
         if (details.spokenLanguages() != null && !details.spokenLanguages().isEmpty()) {
             String languages = details.spokenLanguages().stream()
-                .map(SpokenLanguageDTO::englishName) // eller ::name om ni vill
+                .map(SpokenLanguageDTO::englishName)
                 .reduce((a, b) -> a + ", " + b)
                 .orElse(null);
 
@@ -161,7 +165,6 @@ public class MovieService {
         }
 
 
-
         // TMDB returns genres as objects with id and name
         // We store them as a comma-separated string ("Drama, Crime")
         if (details.genres() != null && !details.genres().isEmpty()) {
@@ -179,54 +182,40 @@ public class MovieService {
     }
 
     private void importCredits(Movie movie) {
-        // Fetch credits (cast and crew) from TMDB using the movie's tmdbId
-        CreditsDTO credits = tmdbClient.getMovieCredits(movie.getTmdbId());
 
+        JPAUtil.inTransaction(em -> {
 
-        // Takes max 15 actors
-        credits.cast().stream()
-            // TMDB cast är redan sorterad, men vi säkrar på order
-            .sorted(Comparator.comparingInt(CastDTO::order))
-            .limit(15)
-            .forEach(cast -> {
-                // Find existing Person by name or create a new one if it does not exist
-                Person person = getOrCreatePerson(cast.name());
+            Movie managedMovie = em.merge(movie);
 
-                // Create a new Role linking the Movie and the Person as an ACTOR
-                Role role = new Role(RoleType.ACTOR, movie, person);
+            CreditsDTO credits = tmdbClient.getMovieCredits(managedMovie.getTmdbId());
 
-                // Store the credit order (lower number = more prominent actor)
-                role.setCreditOrder(cast.order());
+            credits.cast().stream()
+                .limit(15)
+                .forEach(cast -> {
+                    Person person = getOrCreatePerson(em, cast.name());
+                    Role role = new Role(RoleType.ACTOR, null, person);
+                    role.setCreditOrder(cast.order());
+                    managedMovie.addRole(role);
+                });
 
-                // Persist the Role entity (links Movie ↔ Person)
-                roleRepository.save(role);
-            });
-
-        // Takes max 5 directors
-        credits.crew().stream()
-            // Filter only crew members with the job title "Director"
-            .filter(crew -> "Director".equalsIgnoreCase(crew.job()))
-            .limit(5)
-            .forEach(crew -> {
-                // Find existing Person by name or create a new one if it does not exist
-                Person person = getOrCreatePerson(crew.name());
-
-                // Create a new Role linking the Movie and the Person as a DIRECTOR
-                Role role = new Role(RoleType.DIRECTOR, movie, person);
-
-                // Persist the Role entity
-                roleRepository.save(role);
-            });
+            credits.crew().stream()
+                .filter(c -> "Director".equalsIgnoreCase(c.job()))
+                .limit(5)
+                .forEach(crew -> {
+                    Person person = getOrCreatePerson(em, crew.name());
+                    Role role = new Role(RoleType.DIRECTOR, null, person);
+                    managedMovie.addRole(role);
+                });
+        });
     }
 
-    private Person getOrCreatePerson(String name) {
-        // Attempt to find an existing Person with the given name
 
+    private Person getOrCreatePerson(EntityManager em, String name) {
         return personRepository
-            // If no Person is found, create and persist a new one
-            .findByName(name)
-            .orElseGet(() -> personRepository.save(new Person(name)));
+            .findByName(em, name)
+            .orElseGet(() -> personRepository.save(em, new Person(name)));
     }
+
 
     public MovieDetailsUI getMovieDetails(int tmdbId) {
         return JPAUtil.inTransactionResult(em -> {
@@ -274,5 +263,25 @@ public class MovieService {
     public List<Movie> getNowPlayingMoviesFromDb() {
         return movieRepository.findByTag(MovieTag.NOW_PLAYING);
     }
+
+
+    // NOTE: Deletes are executed here to ensure single-transaction atomicity.
+    // Repository deleteAll() methods are intentionally not used.
+    public void resetDatabaseAndImport() {
+        JPAUtil.inTransaction(em -> {
+            em.createQuery("DELETE FROM Role").executeUpdate();
+            em.createQuery("DELETE FROM Person").executeUpdate();
+            em.createQuery("DELETE FROM Movie").executeUpdate();
+        });
+
+        importAllDataFromTmdb();
+        importNowPlaying();
+    }
+
+
+
+
+
+
 
 }

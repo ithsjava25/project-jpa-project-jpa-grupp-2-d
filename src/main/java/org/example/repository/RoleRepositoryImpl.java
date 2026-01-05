@@ -42,5 +42,13 @@ public class RoleRepositoryImpl implements RoleRepository {
             em.close();
         }
     }
+
+    @Override
+    public void deleteAll() {
+        JPAUtil.inTransaction(em -> {
+            em.createQuery("DELETE FROM Role").executeUpdate();
+        });
+    }
+
 }
 

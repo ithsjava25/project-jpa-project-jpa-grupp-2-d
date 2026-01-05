@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.example.ui.SettingsController"
+           fx:id="rootStack">
+
+    <!-- ===== NORMAL SETTINGS CONTENT ===== -->
+    <BorderPane fx:id="rootPane"
+                styleClass="app-root">
+
+        <top>
+            <VBox spacing="8" styleClass="top-container">
+                <ToolBar styleClass="top-bar">
+                    <Button text="Back"
+                            prefHeight="32"
+                            onAction="#goBack"
+                            styleClass="nav-button-home"/>
+                </ToolBar>
+            </VBox>
+        </top>
+
+        <center>
+            <VBox spacing="28"
+                  styleClass="settings-root">
+
+                <Label text="Settings"
+                       styleClass="settings-title"/>
+
+                <VBox spacing="12"
+                      styleClass="settings-card">
+
+                    <Label text="Database"
+                           styleClass="settings-section-title"/>
+
+                    <Button fx:id="importButton"
+                            text="Import data to db"
+                            onAction="#onResetDatabase"
+                            styleClass="nav-button"/>
+                </VBox>
+
+                <VBox spacing="12"
+                      styleClass="settings-card">
+
+                    <Label text="Appearance"
+                           styleClass="settings-section-title"/>
+
+                    <HBox spacing="12">
+                        <Button text="Dark mode"
+                                onAction="#setDarkMode"
+                                styleClass="nav-button"/>
+
+                        <Button text="Light mode"
+                                onAction="#setLightMode"
+                                styleClass="nav-button"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </center>
+    </BorderPane>
+
+    <!-- ===== OVERLAY LOADER ===== -->
+    <StackPane fx:id="loadingOverlay"
+               visible="false"
+               mouseTransparent="false"
+               styleClass="loading-overlay">
+
+        <VBox alignment="CENTER" spacing="10">
+            <ProgressIndicator prefWidth="50"
+                               prefHeight="50"/>
+
+            <Label text="Importing data from TMDB"
+                   styleClass="loading-text"/>
+
+            <Label text="This can take up to 1 minute"
+                   styleClass="loading-subtext"/>
+        </VBox>
+
+    </StackPane>
+
+
+</StackPane>
+
+

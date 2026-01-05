@@ -2,18 +2,21 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-
 <?import javafx.scene.image.ImageView?>
+
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.ui.MovieDetailsController"
-            prefWidth="950" prefHeight="700"
-            style="-fx-background-color: #141414;">
+            prefWidth="950"
+            prefHeight="700"
+            styleClass="app-root">
 
+    <!-- Top -->
     <top>
-        <VBox spacing="8" style="-fx-padding: 10; -fx-background-color: #141414;">
+        <VBox spacing="8"
+              styleClass="top-container">
 
-            <ToolBar style="-fx-background-color: #141414;">
+            <ToolBar styleClass="top-bar">
                 <Button text="Back"
                         prefHeight="32"
                         onAction="#goBack"
@@ -21,18 +24,19 @@
             </ToolBar>
 
         </VBox>
-
     </top>
 
-
+    <!-- Content -->
     <center>
-        <VBox spacing="20" style="-fx-padding: 20; -fx-background-color: #141414;">
+        <VBox spacing="20"
+              styleClass="details-root">
 
+            <HBox spacing="30"
+                  VBox.vgrow="ALWAYS">
 
-            <HBox spacing="30" VBox.vgrow="ALWAYS">
-
-                <VBox spacing="12" alignment="TOP_LEFT">
-
+                <!-- LEFT COLUMN -->
+                <VBox spacing="12"
+                      alignment="TOP_LEFT">
 
                     <VBox styleClass="poster-frame">
                         <ImageView fx:id="posterImage"
@@ -40,138 +44,119 @@
                                    preserveRatio="true"/>
                     </VBox>
 
-
-                    <Button  fx:id="homepageLink"
-                               text="Movie Page"
-                               focusTraversable="false"
-                               styleClass="external-link-button"
-                               visible="false"/>
+                    <Button fx:id="homepageLink"
+                            text="Movie Page"
+                            focusTraversable="false"
+                            styleClass="external-link-button"
+                            visible="false"/>
                 </VBox>
 
-
-
-
+                <!-- RIGHT COLUMN -->
                 <VBox spacing="10">
 
                     <Label fx:id="titleLabel"
-                           style="
-                           -fx-font-size: 26px;
-                           -fx-font-weight: bold;
-                           -fx-text-fill: white;"/>
+                           styleClass="details-title"/>
 
                     <Label fx:id="taglineLabel"
                            wrapText="true"
-                           style="
-                           -fx-font-size: 14px;
-                           -fx-font-style: italic;
-                           -fx-text-fill: #bbbbbb;"/>
+                           styleClass="details-tagline"/>
 
                     <Label fx:id="statusLabel"
-                           style="
-                           -fx-font-size: 12px;
-                           -fx-text-fill: #aaaaaa;"/>
+                           styleClass="details-status"/>
 
-
+                    <!-- META -->
                     <VBox spacing="6">
 
                         <HBox spacing="6">
                             <Label text="Runtime:"
-                                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                                   styleClass="details-meta-label"/>
                             <Label fx:id="runtimeLabel"
-                                   style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+                                   styleClass="details-meta-value"/>
                         </HBox>
 
                         <HBox spacing="6">
                             <Label text="Release Date:"
-                                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                                   styleClass="details-meta-label"/>
                             <Label fx:id="releaseDateLabel"
-                                   style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+                                   styleClass="details-meta-value"/>
                         </HBox>
 
                         <HBox spacing="6">
                             <Label text="Genre:"
-                                   style="-fx-text-fill: #aaaaaa; -fx-font-size: 13px;"/>
+                                   styleClass="details-meta-label"/>
                             <Label fx:id="genreLabel"
                                    wrapText="true"
-                                   style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+                                   styleClass="details-meta-value"/>
                         </HBox>
 
+                        <!-- RATING -->
+                        <HBox alignment="CENTER_LEFT"
+                              spacing="5">
 
-                        <HBox alignment="CENTER_LEFT" spacing="5">
                             <HBox spacing="6"
                                   alignment="CENTER_LEFT"
                                   styleClass="rating-badge">
-                                <Label text="★" styleClass="rating-star"/>
-                                <Label fx:id="ratingLabel" styleClass="rating-text"/>
+                                <Label text="★"
+                                       styleClass="rating-star"/>
+                                <Label fx:id="ratingLabel"
+                                       styleClass="rating-text"/>
                             </HBox>
+
                             <HBox spacing="6"
                                   alignment="CENTER"
-                                  style="
-                                  -fx-background-color: rgba(255,255,255,0.08);
-                                  -fx-background-radius: 14;
-                                  -fx-padding: 4 10;">
+                                  styleClass="vote-count-badge">
 
                                 <Label fx:id="voteCountLabel"
-                                       style="-fx-text-fill: #dddddd; -fx-font-size: 12px;"/>
+                                       styleClass="vote-count-text"/>
                             </HBox>
+
                         </HBox>
                     </VBox>
 
-
+                    <!-- OVERVIEW -->
                     <ScrollPane fitToWidth="true"
                                 VBox.vgrow="ALWAYS"
-                                style="
-                                -fx-background: transparent;
-                                -fx-background-color: transparent;">
+                                styleClass="details-scroll-pane">
 
                         <content>
                             <VBox spacing="14">
 
-                                <!-- Overview -->
                                 <Label fx:id="overviewLabel"
                                        wrapText="true"
                                        focusTraversable="false"
-                                       style="
-                                       -fx-font-size: 14px;
-                                       -fx-text-fill: #dddddd;
-                                       -fx-background-color: transparent;"/>
+                                       styleClass="details-overview"/>
 
-                                <!-- Credits -->
+                                <!-- CREDITS -->
                                 <VBox spacing="10">
 
-                                    <VBox spacing="2" VBox.vgrow="ALWAYS">
+                                    <VBox spacing="2">
                                         <Label text="Director"
-                                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                                               styleClass="details-section-title"/>
                                         <Label fx:id="directorLabel"
-                                               style="-fx-text-fill: #cccccc;"/>
+                                               styleClass="details-section-text"/>
                                     </VBox>
 
                                     <VBox spacing="2">
                                         <Label text="Actors"
-                                               style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                                               styleClass="details-section-title"/>
                                         <Label fx:id="actorsLabel"
                                                wrapText="true"
-                                               style="-fx-text-fill: #cccccc;"/>
+                                               styleClass="details-section-text"/>
                                     </VBox>
 
                                     <VBox spacing="2">
                                         <Label text="Languages"
-                                               style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+                                               styleClass="details-section-title"/>
                                         <Label fx:id="languagesLabel"
-                                               style="-fx-text-fill: #cccccc;"/>
+                                               styleClass="details-section-text"/>
                                     </VBox>
 
-
                                 </VBox>
-
                             </VBox>
                         </content>
-
                     </ScrollPane>
                 </VBox>
             </HBox>
         </VBox>
     </center>
 </BorderPane>
-
-
