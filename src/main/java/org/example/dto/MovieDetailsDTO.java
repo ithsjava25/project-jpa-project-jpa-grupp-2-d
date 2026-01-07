@@ -16,6 +16,7 @@ public record MovieDetailsDTO(
     @SerializedName("spoken_languages") List<SpokenLanguageDTO> spokenLanguages,
     String tagline,
     String homepage,
+    String imdb_id,
     @SerializedName("vote_count") Integer voteCount,
     String status
 

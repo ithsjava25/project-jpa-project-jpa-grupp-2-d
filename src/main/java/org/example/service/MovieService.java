@@ -135,7 +135,7 @@ public class MovieService {
         movie.setRuntime(details.runtime());
         movie.setImageUrl(details.posterPath());
         movie.setTagline(details.tagline());
-        movie.setHomepage(details.homepage());
+        movie.setHomepage("https://www.imdb.com/title/" + details.imdb_id());
         movie.setVoteCount(details.voteCount());
         movie.setStatus(details.status());
 
