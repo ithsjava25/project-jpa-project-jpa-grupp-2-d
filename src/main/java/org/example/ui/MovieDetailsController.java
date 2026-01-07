@@ -114,7 +114,7 @@ public class MovieDetailsController {
 
         if (movie.getHomepage() != null && !movie.getHomepage().isBlank()) {
             homepageLink.setVisible(true);
-            homepageLink.setText("Movie Page");
+            homepageLink.setText("IMDB Page");
             homepageLink.setOnAction(e ->
                 org.example.App.HOST_SERVICES.showDocument(movie.getHomepage())
             );
