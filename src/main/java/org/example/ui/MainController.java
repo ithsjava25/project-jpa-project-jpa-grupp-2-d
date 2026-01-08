@@ -1,5 +1,7 @@
 package org.example.ui;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,11 +14,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.enums.ViewType;
 import org.example.movie.entity.Movie;
 import org.example.service.MovieService;
+import java.text.Normalizer;
+import java.util.Locale;
 
 
 
@@ -43,6 +48,7 @@ public class MainController {
 
     @FXML private Button homeButton;
     @FXML private Button newReleasesButton;
+    @FXML private Button topRatedButton;
 
     private List<UIMovie> allMovies = new ArrayList<>();
     private List<UIMovie> displayedMovies = new ArrayList<>();
@@ -64,10 +70,19 @@ public class MainController {
 
 
     @FXML
-    public void loadTopRatedFromDatabase() {
-        currentView = ViewType.TOP_RATED;
+    public void loadAllMoviesFromDb() {
+        currentView = ViewType.HOME;
         setActive(homeButton);
         loadFromDatabase();
+        clearSearchField();
+    }
+
+    @FXML
+    public void loadTopRatedFromDatabase() {
+        currentView = ViewType.TOP_RATED;
+        setActive(topRatedButton);
+        loadTopRatedFromDb();
+        clearSearchField();
     }
     @FXML
     public void loadNewReleases() {
@@ -81,6 +96,13 @@ public class MainController {
 
         setupGenresFromDb();
         applyFilters();
+        clearSearchField();
+    }
+
+    private void clearSearchField() {
+        if (searchField != null) {
+            Platform.runLater(() -> searchField.clear());
+        }
     }
 
     private void updateSettingsIcon() {
@@ -115,7 +137,7 @@ public class MainController {
             setActive(newReleasesButton);
             loadNowPlayingFromDatabase();
         } else {
-            setActive(homeButton);
+            setActive(topRatedButton);
             loadFromDatabase();
         }
 
@@ -126,8 +148,42 @@ public class MainController {
         setupGenresFromDb();
     }
 
-    private void loadFromDatabase() {
-        List<Movie> movies = movieService.getTopRatedMoviesFromDb();
+    @FXML
+    private void searchRemote() {
+        String query = searchField.getText();
+
+        if (query == null || query.isBlank()) {
+            loadFromDatabase();
+            return;
+        }
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                movieService.searchAndStoreMovies(query);
+                return null;
+            }
+        };
+
+        task.setOnRunning(e -> showLoading());
+
+        task.setOnSucceeded(e -> {
+            hideLoading();
+            loadSearchResultsFromDb(query);
+        });
+
+        task.setOnFailed(e -> {
+            hideLoading();
+            task.getException().printStackTrace();
+        });
+
+        new Thread(task).start();
+    }
+
+    private void loadSearchResultsFromDb(String query) {
+        currentView = ViewType.SEARCH;
+
+        List<Movie> movies = movieService.searchMoviesFromDb(query);
 
         allMovies = movies.stream()
             .map(UIMovie::fromEntity)
@@ -136,6 +192,40 @@ public class MainController {
         setupGenresFromDb();
         applyFilters();
     }
+
+
+    @FXML
+    private StackPane loadingOverlay;
+
+    private void showLoading() {
+        loadingOverlay.setVisible(true);
+    }
+
+    private void hideLoading() {
+        loadingOverlay.setVisible(false);
+    }
+
+
+    private void loadTopRatedFromDb() {
+        allMovies = movieService.getTopRatedMoviesFromDb()
+            .stream()
+            .map(UIMovie::fromEntity)
+            .toList();
+
+        setupGenresFromDb();
+        applyFilters();
+    }
+
+    private void loadFromDatabase() {
+        allMovies = movieService.getAllMoviesFromDb()
+            .stream()
+            .map(UIMovie::fromEntity)
+            .toList();
+
+        setupGenresFromDb();
+        applyFilters();
+    }
+
     private void setupGenresFromDb() {
         Set<String> genres = allMovies.stream()
             .flatMap(movie -> movie.getGenre().stream())
@@ -145,15 +235,26 @@ public class MainController {
         genreComboBox.getItems().addAll(genres);
         genreComboBox.getSelectionModel().select("All");
     }
+
+    public static String normalize(String input) {
+        if (input == null) return "";
+
+        return Normalizer.normalize(input, Normalizer.Form.NFD)
+            .replaceAll("\\p{M}", "")   // remove diacritics
+            .toLowerCase(Locale.ROOT)
+            .trim();
+    }
+
     private void applyFilters() {
-        String query = searchField.getText().toLowerCase();
+        String query = normalize(searchField.getText().toLowerCase());
         String selectedGenre = genreComboBox.getValue();
 
         displayedMovies = allMovies.stream()
-            .filter(movie ->
-                query.isBlank() ||
-                    movie.getTitle().toLowerCase().contains(query)
-            )
+            .filter(movie -> {
+                String titleNorm = normalize(movie.getTitle());
+                return query.isBlank() ||
+                    titleNorm.toLowerCase().contains(query);
+            })
             .filter(movie ->
                 selectedGenre == null ||
                     selectedGenre.equals("All") ||
@@ -270,6 +371,7 @@ public class MainController {
         }
     }
     private void setActive(Button active) {
+        topRatedButton.getStyleClass().remove("active");
         homeButton.getStyleClass().remove("active");
         newReleasesButton.getStyleClass().remove("active");
         active.getStyleClass().add("active");

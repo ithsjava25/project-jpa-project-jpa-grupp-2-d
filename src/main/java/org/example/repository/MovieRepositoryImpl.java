@@ -12,6 +12,20 @@ import java.util.Optional;
 public class MovieRepositoryImpl implements MovieRepository {
 
     @Override
+    public boolean existsByTmdbId(int tmdbId) {
+        EntityManager em = JPAUtil.getEntityManager();
+        return !em
+            .createQuery(
+                "SELECT m.id FROM Movie m WHERE m.tmdbId = :tmdbId",
+                Long.class
+            )
+            .setParameter("tmdbId", tmdbId)
+            .setMaxResults(1)
+            .getResultList()
+            .isEmpty();
+    }
+
+    @Override
     public Movie save(Movie movie) {
         JPAUtil.inTransaction(em -> {
             if (movie.getId() == null) {
@@ -142,6 +156,16 @@ public class MovieRepositoryImpl implements MovieRepository {
         });
     }
 
+    @Override
+    public List<Movie> searchByTitle(String query) {
+        EntityManager em = JPAUtil.getEntityManager();
+            return em.createQuery("""
+            SELECT m FROM Movie m
+            WHERE LOWER(m.title) LIKE LOWER(:query)
+        """, Movie.class)
+                .setParameter("query", "%" + query + "%")
+                .getResultList();
+    }
 
 
 }

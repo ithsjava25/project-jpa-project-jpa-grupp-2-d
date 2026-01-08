@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityManager;
 import org.example.movie.entity.Movie;
 import org.example.movie.entity.MovieTag;
@@ -28,6 +29,10 @@ public interface MovieRepository {
         List<Movie> findByTag(MovieTag tag);
 
         void deleteAll();
+
+        List<Movie> searchByTitle(String query);
+
+        boolean existsByTmdbId(int tmdbId);
 
 }
 

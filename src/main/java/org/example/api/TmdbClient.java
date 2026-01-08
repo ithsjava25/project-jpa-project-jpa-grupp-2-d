@@ -6,11 +6,14 @@ import nonapi.io.github.classgraph.json.JSONUtils;
 import org.example.dto.*;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TmdbClient {
 
@@ -211,6 +214,43 @@ public class TmdbClient {
             throw new RuntimeException("Could not get top rated movies from TMDB", e);
         }
     }
+
+    public SearchResponseDTO searchMovies(String query, int page) {
+        try {
+            String encodedQuery = URLEncoder.encode(query, UTF_8);
+
+            String url = baseUrl
+                + "/search/movie"
+                + "?api_key=" + apiKey
+                + "&query=" + encodedQuery
+                + "&page=" + page;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(Duration.ofSeconds(10))
+                .GET()
+                .build();
+
+            HttpResponse<String> response =
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException(
+                    "TMDB API error: HTTP " + response.statusCode()
+                );
+            }
+
+            return gson.fromJson(response.body(), SearchResponseDTO.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Could not search movies from TMDB", e);
+        }
+    }
+
+    public SearchResponseDTO searchMovies(String query) {
+        return searchMovies(query, 1);
+    }
+
 
 
 }

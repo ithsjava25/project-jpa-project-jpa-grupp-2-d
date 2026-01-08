@@ -46,6 +46,27 @@ public class MovieService {
         return movieRepository.findAll();
     }
 
+    //search through the API and populate results into database
+
+    public void searchAndStoreMovies(String query) {
+        var response = tmdbClient.searchMovies(query);
+
+        for (MovieDTO dto : response.results()) {
+            Movie movie = createMovieIfNotExists(dto, MovieTag.SEARCH_RESULT);
+
+            importMovieDetails(movie);
+            importCredits(movie);
+        }
+    }
+
+
+    //expose DB-backed search
+
+    public List<Movie> searchMoviesFromDb(String query) {
+        return movieRepository.searchByTitle(query);
+    }
+
+
     // get a movie with tmdbId
     public Movie getMovieByTmdbId(int tmdbId) {
         return movieRepository.findByTmdbId(tmdbId)
@@ -105,7 +126,7 @@ public class MovieService {
             .findByTmdbId(dto.id())
             .map(existing -> {
 
-                if (existing.getTag() != tag) {
+                if (existing.getTag() != tag && existing.getTag() != MovieTag.TOP_RATED && existing.getTag() != MovieTag.NOW_PLAYING) {
                     existing.setTag(tag);
                     movieRepository.save(existing);
                 }
@@ -258,6 +279,10 @@ public class MovieService {
 
     public List<Movie> getTopRatedMoviesFromDb() {
         return movieRepository.findByTag(MovieTag.TOP_RATED);
+    }
+
+    public List<Movie> getAllMoviesFromDb() {
+        return movieRepository.findAll();
     }
 
     public List<Movie> getNowPlayingMoviesFromDb() {

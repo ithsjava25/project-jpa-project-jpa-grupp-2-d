@@ -38,8 +38,9 @@ public class Movie {
     @Column(length = 50)
     private String status;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, name = "tag",  length = 20)
     private MovieTag tag;
+
 
 
     public String getStatus() { return status; }
