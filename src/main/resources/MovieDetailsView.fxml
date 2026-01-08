@@ -45,7 +45,7 @@
                     </VBox>
 
                     <Button fx:id="homepageLink"
-                            text="Movie Page"
+                            text="IMDB Page"
                             focusTraversable="false"
                             styleClass="external-link-button"
                             visible="false"/>
