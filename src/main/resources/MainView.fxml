@@ -21,6 +21,12 @@
                 <Button fx:id="homeButton"
                         text="Home"
                         prefHeight="32"
+                        onAction="#loadAllMoviesFromDb"
+                        styleClass="nav-button"/>
+
+                <Button fx:id="topRatedButton"
+                        text="Top Rated"
+                        prefHeight="32"
                         onAction="#loadTopRatedFromDatabase"
                         styleClass="nav-button"/>
 
@@ -33,10 +39,23 @@
                 <TextField fx:id="searchField"
                            prefHeight="32"
                            promptText="Search movies..."
+                           onAction="#searchRemote"
                            prefWidth="300"
                            styleClass="search-field"/>
 
-                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Search"
+                        onAction="#searchRemote"
+                        prefHeight="32"
+                        styleClass="nav-button"
+                />
+
+                <StackPane fx:id="loadingOverlay" visible="false" prefHeight="32">
+                <ProgressIndicator />
+                </StackPane>
+
+
+
+<Region HBox.hgrow="ALWAYS"/>
 
                 <Button fx:id="settingsButton"
                         onAction="#openSettings"
