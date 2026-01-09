@@ -8,8 +8,6 @@
 
     <persistence-unit name="myPU" transaction-type="RESOURCE_LOCAL">
 
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-
         <!-- Entities -->
         <class>org.example.movie.entity.Movie</class>
         <class>org.example.movie.entity.Person</class>
