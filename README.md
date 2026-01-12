@@ -25,7 +25,7 @@ Kommunikation med databasen ska ske med JPA och Hibernate, enligt code first-met
 
 ### ✅ Vecka 3 – Finslipning och presentation
 - [ ] Lägg till validering, felhantering och loggning
-- [ ] Skriv enhetstester för centrala funktioner
+- [ x ] Skriv enhetstester för centrala funktioner
 - [ ] Förbered demo (~10 min):
 - [ ] Visa applikationen (CLI-kommandon eller GUI)
 - [ ] Gå igenom datamodellen och relationerna

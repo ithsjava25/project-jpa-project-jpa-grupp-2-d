@@ -56,6 +56,10 @@ public class MovieService {
     //search through the API and populate results into database
 
     public void searchAndStoreMovies(String query) {
+        if (query == null ||query.trim().length() < 2) {
+            return;
+        }
+
         var response = tmdbClient.searchMovies(query);
 
         for (MovieDTO dto : response.results()) {
