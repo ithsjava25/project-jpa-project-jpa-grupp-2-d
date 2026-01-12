@@ -4,5 +4,6 @@ public enum ViewType {
     TOP_RATED,
     NOW_PLAYING,
     SEARCH,
-    HOME
+    HOME,
+    FAVORITES
 }
