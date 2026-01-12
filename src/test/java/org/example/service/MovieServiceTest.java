@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.api.TmdbClient;
 import org.example.movie.entity.Movie;
 import org.example.movie.entity.MovieTag;
+import org.example.repository.FavoriteRepository;
 import org.example.repository.MovieRepository;
 import org.example.repository.PersonRepository;
 import org.example.repository.RoleRepository;
@@ -21,6 +22,7 @@ public class MovieServiceTest {
     private MovieRepository movieRepository;
     private PersonRepository personRepository;
     private RoleRepository roleRepository;
+    private FavoriteRepository favoriteRepository;
     private TmdbClient tmdbClient;
 
     private MovieService movieService;
@@ -30,12 +32,14 @@ public class MovieServiceTest {
         movieRepository = mock(MovieRepository.class);
         personRepository = mock(PersonRepository.class);
         roleRepository = mock(RoleRepository.class);
+        favoriteRepository = mock(FavoriteRepository.class);
         tmdbClient = mock(TmdbClient.class);
 
         movieService = new MovieService(
             movieRepository,
             personRepository,
             roleRepository,
+            favoriteRepository,
             tmdbClient
         );
     }
