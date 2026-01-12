@@ -55,7 +55,30 @@
 
 
 
-<Region HBox.hgrow="ALWAYS"/>
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- FAVORITES BUTTON -->
+                <Button fx:id="favoritesButton"
+                        onAction="#showFavorites"
+                        styleClass="icon-button">
+
+                    <graphic>
+                        <StackPane>
+                            <ImageView fx:id="favoritesIcon"
+                                       fitWidth="16"
+                                       fitHeight="16"
+                                       preserveRatio="true"/>
+
+                            <Label fx:id="favoritesCountLabel"
+                                   visible="false"
+                                   StackPane.alignment="TOP_RIGHT"
+                                   translateX="8"
+                                   translateY="-8"
+                                   styleClass="favorites-counter"/>
+                        </StackPane>
+                    </graphic>
+
+                </Button>
 
                 <Button fx:id="settingsButton"
                         onAction="#openSettings"

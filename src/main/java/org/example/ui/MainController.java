@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -49,6 +51,11 @@ public class MainController {
     @FXML private Button homeButton;
     @FXML private Button newReleasesButton;
     @FXML private Button topRatedButton;
+
+    @FXML private Button favoritesButton;
+    @FXML private ImageView favoritesIcon;
+    @FXML private Label favoritesCountLabel;
+
 
     private List<UIMovie> allMovies = new ArrayList<>();
     private List<UIMovie> displayedMovies = new ArrayList<>();
@@ -99,6 +106,21 @@ public class MainController {
         clearSearchField();
     }
 
+    @FXML
+    private void showFavorites() {
+        currentView = ViewType.FAVORITES;
+        setActive(null);
+
+        allMovies = movieService.getFavoriteMovies()
+            .stream()
+            .map(UIMovie::fromEntity)
+            .toList();
+
+        setupGenresFromDb();
+        applyFilters();
+    }
+
+
     private void clearSearchField() {
         if (searchField != null) {
             Platform.runLater(() -> searchField.clear());
@@ -132,20 +154,42 @@ public class MainController {
     public void initialize() {
         currentView = initialView;
         updateSettingsIcon();
+        updateHeartTopIcon();
+        updateHeartCounter();
 
-        if (initialView == ViewType.NOW_PLAYING) {
-            setActive(newReleasesButton);
-            loadNowPlayingFromDatabase();
-        } else {
-            setActive(topRatedButton);
-            loadFromDatabase();
+
+        switch (initialView) {
+
+            case FAVORITES -> {
+                showFavorites();
+            }
+
+            case NOW_PLAYING -> {
+                setActive(newReleasesButton);
+                loadNowPlayingFromDatabase();
+            }
+
+            case HOME -> {
+                setActive(homeButton);
+                loadAllMoviesFromDb();
+            }
+
+            case TOP_RATED -> {
+                setActive(topRatedButton);
+                loadFromDatabase();
+            }
+
+            default -> {
+                setActive(topRatedButton);
+                loadFromDatabase();
+            }
         }
 
         searchField.textProperty().addListener((obs, oldValue, newValue) -> {
             applyFilters();
         });
 
-        setupGenresFromDb();
+
     }
 
     @FXML
@@ -278,17 +322,15 @@ public class MainController {
         card.setMaxSize(CARD_WIDTH, CARD_HEIGHT);
         card.getStyleClass().add("movie-card");
 
-        card.setOnMouseClicked(e -> {
-            openMovieDetails(movie);
-        });
+        card.setOnMouseClicked(e -> openMovieDetails(movie));
 
         card.setStyle("""
-            -fx-background-color: #1e1e1e;
-            -fx-padding: 6;
-            -fx-border-radius: 6;
-            -fx-background-radius: 6;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);
-         """);
+        -fx-background-color: #1e1e1e;
+        -fx-padding: 6;
+        -fx-border-radius: 6;
+        -fx-background-radius: 6;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);
+        """);
 
         ImageView poster = new ImageView();
         poster.setFitWidth(CARD_WIDTH - 12);
@@ -296,14 +338,40 @@ public class MainController {
         poster.setPreserveRatio(false);
 
         String posterPath = movie.getPosterPath();
-
         if (posterPath != null && !posterPath.isBlank()) {
-            String imageUrl = IMAGE_BASE_URL + posterPath;
-            poster.setImage(ImageCache.get(imageUrl));
+            poster.setImage(ImageCache.get(IMAGE_BASE_URL + posterPath));
         } else {
             poster.setImage(new Image(Objects.requireNonNull(
-                getClass().getResourceAsStream("/images/no-poster.jpg"))));
+                getClass().getResourceAsStream("/images/no-poster.jpg")
+            )));
         }
+
+        // ===== HEART ICON =====
+        ImageView heartIcon = new ImageView();
+        heartIcon.setFitWidth(15);
+        heartIcon.setFitHeight(15);
+        heartIcon.setPreserveRatio(true);
+
+        updateHeartIcon(heartIcon, movie);
+
+        StackPane heartWrapper = new StackPane(heartIcon);
+        heartWrapper.getStyleClass().add("heart-wrapper");
+
+        heartWrapper.setMinSize(StackPane.USE_PREF_SIZE, StackPane.USE_PREF_SIZE);
+        heartWrapper.setMaxSize(StackPane.USE_PREF_SIZE, StackPane.USE_PREF_SIZE);
+
+        StackPane.setAlignment(heartWrapper, Pos.TOP_RIGHT);
+        StackPane.setMargin(heartWrapper, new Insets(6));
+
+        // Klicka på hela cirkeln
+        heartWrapper.setOnMouseClicked(e -> {
+            e.consume();
+            movieService.toggleFavorite(movie.getId());
+            updateHeartIcon(heartIcon, movie);
+            updateHeartCounter();
+        });
+
+        StackPane posterWrapper = new StackPane(poster, heartWrapper);
 
         Label title = new Label(movie.getTitle());
         Label meta = new Label(
@@ -312,20 +380,20 @@ public class MainController {
         );
 
         meta.setStyle("""
-            -fx-text-fill: #cccccc;
-            -fx-font-size: 11px;
+        -fx-text-fill: #cccccc;
+        -fx-font-size: 11px;
         """);
 
         title.setWrapText(true);
         title.setMaxHeight(40);
         title.setStyle("""
-            -fx-text-fill: white;
-            -fx-font-size: 12px;
-            -fx-font-weight: bold;
+        -fx-text-fill: white;
+        -fx-font-size: 12px;
+        -fx-font-weight: bold;
         """);
 
         VBox.setVgrow(title, Priority.NEVER);
-        card.getChildren().addAll(poster, title, meta);
+        card.getChildren().addAll(posterWrapper, title, meta);
         return card;
     }
     private void openMovieDetails(UIMovie movie) {
@@ -371,11 +439,15 @@ public class MainController {
         }
     }
     private void setActive(Button active) {
-        topRatedButton.getStyleClass().remove("active");
         homeButton.getStyleClass().remove("active");
         newReleasesButton.getStyleClass().remove("active");
-        active.getStyleClass().add("active");
+        topRatedButton.getStyleClass().remove("active");
+
+        if (active != null) {
+            active.getStyleClass().add("active");
+        }
     }
+
     private void loadNowPlayingFromDatabase() {
         allMovies = movieService.getNowPlayingMoviesFromDb()
             .stream()
@@ -385,6 +457,42 @@ public class MainController {
         setupGenresFromDb();
         applyFilters();
     }
+
+    private void updateHeartTopIcon() {
+        String iconPath = ThemeManager.isLightMode()
+            ? "/icons/heart_filled_black.png"
+            : "/icons/heart_filled_white.png";
+
+        var iconStream = getClass().getResourceAsStream(iconPath);
+        if (iconStream == null) {
+            System.err.println("Warning: Favorites icon not found at " + iconPath);
+            return;
+        }
+
+        favoritesIcon.setImage(new Image(iconStream));
+    }
+
+
+    private void updateHeartIcon(ImageView heartIcon, UIMovie movie) {
+        boolean isFavorite = movieService.isFavorite(movie.getId());
+
+        String iconPath = isFavorite
+            ? "/icons/heart_filled_white.png"
+            : "/icons/heart_unfilled_white.png";
+
+        heartIcon.setImage(
+            new Image(getClass().getResourceAsStream(iconPath))
+        );
+    }
+
+
+    private void updateHeartCounter() {
+        long count = movieService.getFavoriteCount();
+        favoritesCountLabel.setText(String.valueOf(count));
+        favoritesCountLabel.setVisible(count > 0);
+    }
+
+
 
     @FXML
     private void openSettings() {

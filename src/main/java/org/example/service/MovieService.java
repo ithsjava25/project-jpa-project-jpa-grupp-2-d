@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import org.example.api.TmdbClient;
 import org.example.dto.*;
 import org.example.movie.entity.*;
+import org.example.repository.FavoriteRepository;
 import org.example.repository.MovieRepository;
 import org.example.repository.PersonRepository;
 import org.example.repository.RoleRepository;
@@ -12,27 +13,33 @@ import org.example.util.JPAUtil;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Objects;
 
 public class MovieService {
 
     private final MovieRepository movieRepository;
     private final PersonRepository personRepository;
     private final RoleRepository roleRepository;
+    private final FavoriteRepository favoriteRepository;
     private final TmdbClient tmdbClient;
 
     public MovieService(
         MovieRepository movieRepository,
         PersonRepository personRepository,
         RoleRepository roleRepository,
+        FavoriteRepository favoriteRepository,
         TmdbClient tmdbClient
     ) {
         this.movieRepository = movieRepository;
         this.personRepository = personRepository;
         this.roleRepository = roleRepository;
+        this.favoriteRepository = favoriteRepository;
+
         this.tmdbClient = tmdbClient;
     }
 
     // When application starts, this method should run first!
+    // need to fix so import triggers if db is empty (MainController)
     public List<Movie> getAllMovies() {
         // check if db has data.
         if (movieRepository.count() > 0) {
@@ -292,6 +299,41 @@ public class MovieService {
     public List<Movie> getNowPlayingMoviesFromDb() {
         return movieRepository.findByTag(MovieTag.NOW_PLAYING);
     }
+
+
+    // ---------- Favorites ---------- //
+
+    public void toggleFavorite(int tmdbId) {
+        favoriteRepository.findByTmdbId(tmdbId)
+            .ifPresentOrElse(
+                // redan favorit → ta bort
+                favoriteRepository::delete,
+
+                // inte favorit → lägg till
+                () -> favoriteRepository.save(new Favorite(tmdbId))
+            );
+    }
+
+    public boolean isFavorite(int tmdbId) {
+        return favoriteRepository.findByTmdbId(tmdbId).isPresent();
+    }
+
+    public long getFavoriteCount() {
+        return favoriteRepository.count();
+    }
+
+    public List<Movie> getFavoriteMovies() {
+        return favoriteRepository.findAll()
+            .stream()
+            .map(fav ->
+                movieRepository.findByTmdbId(fav.getTmdbId())
+                    .orElse(null)
+            )
+            .filter(Objects::nonNull)
+            .toList();
+    }
+
+
 
 
     // NOTE: Deletes are executed here to ensure single-transaction atomicity.

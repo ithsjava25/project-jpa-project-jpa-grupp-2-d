@@ -21,9 +21,10 @@ public class SearchTest {
         MovieRepository movieRepo = new MovieRepositoryImpl();
         PersonRepository personRepo = new PersonRepositoryImpl();
         RoleRepository roleRepo = new RoleRepositoryImpl();
+        FavoriteRepository favoriteRepo = new FavoriteRepositoryImpl();
 
         MovieService service =
-            new MovieService(movieRepo, personRepo, roleRepo, tmdb);
+            new MovieService(movieRepo, personRepo, roleRepo, favoriteRepo, tmdb);
 
         MovieDTO dto = new MovieDTO(
             123,

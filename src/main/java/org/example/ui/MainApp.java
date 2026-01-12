@@ -5,12 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.example.api.TmdbClient;
-import org.example.repository.MovieRepository;
-import org.example.repository.MovieRepositoryImpl;
-import org.example.repository.PersonRepository;
-import org.example.repository.PersonRepositoryImpl;
-import org.example.repository.RoleRepository;
-import org.example.repository.RoleRepositoryImpl;
+import org.example.repository.*;
 import org.example.service.MovieService;
 
 public class MainApp {
@@ -20,12 +15,14 @@ public class MainApp {
             MovieRepository movieRepository = new MovieRepositoryImpl();
             PersonRepository personRepository = new PersonRepositoryImpl();
             RoleRepository roleRepository = new RoleRepositoryImpl();
+            FavoriteRepository favoriteRepository = new FavoriteRepositoryImpl();
             TmdbClient tmdbClient = new TmdbClient();
 
             MovieService movieService = new MovieService(
                 movieRepository,
                 personRepository,
                 roleRepository,
+                favoriteRepository,
                 tmdbClient
             );
 
