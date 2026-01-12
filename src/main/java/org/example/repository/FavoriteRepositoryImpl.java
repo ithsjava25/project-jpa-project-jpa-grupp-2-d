@@ -23,22 +23,6 @@ public class FavoriteRepositoryImpl implements FavoriteRepository{
     }
 
     @Override
-    public Optional<Favorite> findByMovieId(Long movieId) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            return em.createQuery(
-                    "SELECT f FROM Favorite f WHERE f.movie.id = :movieId",
-                    Favorite.class
-                )
-                .setParameter("movieId", movieId)
-                .getResultStream()
-                .findFirst();
-        } finally {
-            em.close();
-        }
-    }
-
-    @Override
     public List<Favorite> findAll() {
         EntityManager em = JPAUtil.getEntityManager();
         try {

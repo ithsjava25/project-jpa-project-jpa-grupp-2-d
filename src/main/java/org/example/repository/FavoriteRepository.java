@@ -10,10 +10,7 @@ public interface FavoriteRepository {
 
     void delete(Favorite favorite);
 
-    Optional<Favorite> findByMovieId(Long movieId);
-
     Optional<Favorite> findByTmdbId(int tmdbId);
-
 
     List<Favorite> findAll();
 
